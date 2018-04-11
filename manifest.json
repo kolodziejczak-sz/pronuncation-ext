@@ -1,0 +1,29 @@
+{
+  "manifest_version": 2,
+
+  "name": "pronouncation",
+  "description": "pronouncation app.",
+  "version": "1.0",
+
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_popup": "./popup/popup.html"
+  },
+  "permissions": [
+    "activeTab",
+    "tabs"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*/*"
+      ],
+      "css": [ "./content/content.css" ],
+      "js": [ "./content/content.js" ]
+    }
+  ],
+  "web_accessible_resources": [
+    "/content/icons/*.svg",
+    "/content/fonts/*.ttf"
+  ]
+}
