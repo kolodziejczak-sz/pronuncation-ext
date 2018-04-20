@@ -23,6 +23,7 @@ function getContentScriptStatus(tab, callback) {
 }
 
 function isHttps(url) {
+  console.log(url);
   return url ? url.substring(0,5) === 'https': false;
 }
 
@@ -36,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function initComponents(tab) {
     const isEncrypted = isHttps(tab.url);
-
+    console.log(isEncrypted);
     initTriggerEl(tab, isEncrypted);
     initBarEl(isEncrypted);
   }

@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
 
-  "name": "pronouncation",
-  "description": "pronouncation app.",
+  "name": "pronouncation extension app",
+  "description": "pronouncation extension",
   "version": "1.0",
 
   "browser_action": {
@@ -10,7 +10,7 @@
     "default_popup": "./popup/popup.html"
   },
   "permissions": [
-    "activeTab",
+    "storage",
     "tabs"
   ],
   "content_scripts": [

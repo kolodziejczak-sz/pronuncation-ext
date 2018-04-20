@@ -6,8 +6,8 @@
  }
 
 
-#ext-pronoun-root {
-  z-index: 999999;
+#ext-pronun-root:not(:empty) {
+  z-index: 9999999999999999999999999999;
   position: fixed;
   top: 0;
   left: 0;
@@ -15,19 +15,20 @@
   right: 0;
 }
 
-#ext-pronoun-root > .ext-pronoun-wrapper {
+#ext-pronun-root > .ext-pronun-wrapper {
   width: 100%;
   height: 100%;
   background: rgba(0,0,0,.2) !important;
 }
 
-body.ext-pronoun-selection-mode > #ext-pronoun-root,
-body.ext-pronoun-selection-mode > #ext-pronoun-root > .ext-pronoun-wrapper {
+/** selection mode **/
+
+body.ext-pronun-selection-mode > #ext-pronun-root,
+body.ext-pronun-selection-mode > #ext-pronun-root > .ext-pronun-wrapper {
   pointer-events: none;
 }
 
-
-.ext-pronoun-selection-mode-bar {
+.ext-pronun-selection-mode-bar {
   background: #ffffff;
   color: #2a2828;
   border-bottom: 2px solid;
@@ -35,13 +36,13 @@ body.ext-pronoun-selection-mode > #ext-pronoun-root > .ext-pronoun-wrapper {
   border-bottom-color: #f0f0f0;
 }
 
-body.ext-pronoun-selection-mode::selection,
-body.ext-pronoun-selection-mode *::selection {
+body.ext-pronun-selection-mode::selection,
+body.ext-pronun-selection-mode *::selection {
   background: rgb(243, 120, 157) !important;
   color: #fff !important;
 }
 
-.ext-pronoun-selection-mode-bar {
+.ext-pronun-selection-mode-bar {
   pointer-events: all;
   cursor: default;
   user-select: none;
@@ -57,7 +58,34 @@ body.ext-pronoun-selection-mode *::selection {
   padding: 10px 20px;
 }
 
-#ext-pronoun-root > .ext-pronoun-reader {
+/** menubar **/
+
+.ext-pronun-reader > .ext-pronun-menu-bar {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  background-color: #f0f0f0;
+  overflow: hidden;
+  box-sizing: border-box;
+  height: 30px;
+}
+
+.ext-pronun-menu-bar > .ext-pronun-btn:not(:last-of-type) {
+  width: 40px;
+}
+
+.ext-pronun-menu-bar > .ext-pronun-btn:last-of-type {
+  margin-left: auto;
+}
+
+.ext-pronun-menu-bar .ext-pronun-btn:hover:not(:disabled) {
+  background: #d8e6f2;
+}
+ 
+
+/** reader **/
+
+#ext-pronun-root > .ext-pronun-reader {
   display: flex;
   flex-direction: column;
   position: absolute;
@@ -72,34 +100,9 @@ body.ext-pronoun-selection-mode *::selection {
   box-shadow: 0 2px 10px rgba(0,0,0,.2);
 }
 
-.ext-pronoun-reader > .ext-pronoun-toolbar {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  background-color: #f0f0f0;
-  overflow: hidden;
-  box-sizing: border-box;
-  height: 30px;
-}
+/** article **/
 
-.ext-pronoun-toolbar > .ext-pronoun-btn.active > .ext-pronoun-img {
-  background: #ff9898;
-  border-radius: 50%;
-  animation: pulsate 1.2s 0s infinite;
-  transition: opacity .218s;
-}
-
-
-
-.ext-pronoun-toolbar > .ext-pronoun-btn:not(:last-of-type) {
-  width: 40px;
-}
-
-.ext-pronoun-toolbar > .ext-pronoun-btn:last-of-type {
-  margin-left: auto;
-}
- 
-.ext-pronoun-reader .ext-pronoun-article {
+.ext-pronun-reader .ext-pronun-article {
   font-family: "open-sans",arial,sans-serif;
   font-size: 16px;
   line-height: 1.5;
@@ -107,18 +110,124 @@ body.ext-pronoun-selection-mode *::selection {
   min-height: 200px;
   padding: 20px;
   box-sizing: border-box;
+  position: relative;
 }
 
-.ext-pronoun-article .unread {
-
-}
-
-.ext-pronoun-article .mark {
+.ext-pronun-article .ext-pronun-mark {
   color: #690;
 }
+.ext-pronun-article > .ext-pronun-synth-mic,
+.ext-pronun-article > .ext-pronun-synth-mic:active,
+.ext-pronun-article > .ext-pronun-synth-mic:focus,
+.ext-pronun-article > .ext-pronun-synth-mic:hover,
+.ext-pronun-article > .ext-pronun-synth-mic:disabled {
+  position: absolute;
+  top: 0;
+  left: 0;
+  outline: 0;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  background: #fff;
+  width: 25px;
+  height: 25px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
 
-.ext-pronoun-reader .ext-pronoun-logger {
-  padding: 10px 0 10px 20px;
+.ext-pronun-article > .ext-pronun-synth-mic.active {
+  background: #ebebeb;
+}
+
+.ext-pronun-article > .ext-pronun-synth-mic > .ext-pronun-img {
+  pointer-events: none;
+  width: 18px;
+  height: 18px;
+  
+}
+
+/** toolbar **/
+
+.ext-pronun-toolbar {
+  background: #f4f5ff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  box-sizing: border-box;
+  height: 20px;
+  text-align: center;
+}
+
+.ext-pronun-toolbar .ext-pronun-lang-select {
+  padding: 0;
+  margin: 0;
+  outline: 0;
+  border: 0;
+  cursor: pointer;
+  background: transparent;
+  color: #767676;
+  height: 100%;
+  -webkit-appearance: none;
+  display: none;
+}
+
+.ext-pronun-toolbar .ext-pronun-lang-select,
+.ext-pronun-toolbar .ext-pronun-lang-select > option {
+  font-size: 12px;
+}
+
+.ext-pronun-toolbar > .ext-pronun-tooltip {
+  padding: 0;
+  margin: 0;
+  flex: 1;
+  font-size: 12px;
+  color: #767676;
+  background: transparent;
+  text-decoration: none;
+  font-style: normal;
+  border: 0;
+}
+
+.ext-pronun-toolbar > .ext-pronun-recognition-trigger {
+  margin-left: auto;
+}
+
+.ext-pronun-toolbar > .ext-pronun-recognition-trigger.active {
+  background: #f77676;
+  position: relative;
+  overflow: visible;
+  z-index: 2;
+}
+
+.ext-pronun-toolbar > .ext-pronun-recognition-trigger.active::after,
+.ext-pronun-toolbar > .ext-pronun-recognition-trigger.active::before {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  background: inherit;
+  width: 200%;
+  height: 200%;
+  z-index: -1;
+  top: 50%;
+  left: -10%;
+  transform: translateY(-50%);
+}
+
+.ext-pronun-toolbar > .active::before {
+  animation: pulsate 1.2s 0s infinite;
+  transition: opacity .218s;
+}
+
+.ext-pronun-menu-bar > .ext-pronun-btn.active > .ext-pronun-img {
+  background: #f38585;
+  border-radius: 50%;
+}
+
+/** logger **/
+
+.ext-pronun-reader .ext-pronun-logger {
+  padding: 0 0 10px 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -126,7 +235,7 @@ body.ext-pronoun-selection-mode *::selection {
   font-size: 12px;
 }
 
-.ext-pronoun-logger .ext-pronoun-final-transcriptions {
+.ext-pronun-logger .ext-pronun-final-transcriptions {
   height: 70px;
   border-top: 1px solid rgb(240,240,240);
   padding: 5px 10px 0 0;
@@ -137,16 +246,18 @@ body.ext-pronoun-selection-mode *::selection {
   overflow: auto;
 }
 
-.ext-pronoun-logger .ext-pronoun-interim-transcription {
+.ext-pronun-logger .ext-pronun-interim-transcription {
   display: block;
   color: rgba(0,0,0,.5);
 }
 
-.ext-pronoun-btn,
-.ext-pronoun-btn:active,
-.ext-pronoun-btn:focus,
-.ext-pronoun-btn:hover,
-.ext-pronoun-btn:disabled {
+
+/** common */
+.ext-pronun-btn,
+.ext-pronun-btn:active,
+.ext-pronun-btn:focus,
+.ext-pronun-btn:hover,
+.ext-pronun-btn:disabled {
   color: rgb(50,50,50);
   background: transparent;
   border: 0;
@@ -177,51 +288,47 @@ body.ext-pronoun-selection-mode *::selection {
   height: 100%;
 }
 
-#ext-pronoun-root .ext-pronoun-btn:hover:not(:disabled) {
-  background: #d8e6f2;
-}
-
-.ext-pronoun-btn:disabled {
+.ext-pronun-btn:disabled {
   opacity: .5;
 }
 
-.ext-pronoun-btn > .ext-pronoun-img {
+.ext-pronun-btn > .ext-pronun-img {
   width: 18px;
   height: 18px;
 
 }
 
-.ext-pronoun-btn > .ext-pronoun-img + .ext-pronoun-text {
+.ext-pronun-btn > .ext-pronun-img + .ext-pronun-text {
   margin-left: 5px;
 }
 
-.ext-pronoun-article::-webkit-scrollbar,
-.ext-pronoun-final-transcriptions::-webkit-scrollbar {
+.ext-pronun-article::-webkit-scrollbar,
+.ext-pronun-final-transcriptions::-webkit-scrollbar {
   width: 10px;
 }
 
-.ext-pronoun-article::-webkit-scrollbar-track,
-.ext-pronoun-final-transcriptions::-webkit-scrollbar-track {
+.ext-pronun-article::-webkit-scrollbar-track,
+.ext-pronun-final-transcriptions::-webkit-scrollbar-track {
   background: #f9fafb; 
 }
 
-.ext-pronoun-article::-webkit-scrollbar-thumb,
-.ext-pronoun-final-transcriptions::-webkit-scrollbar-thumb {
+.ext-pronun-article::-webkit-scrollbar-thumb,
+.ext-pronun-final-transcriptions::-webkit-scrollbar-thumb {
   background: #f0f0f0; 
 }
 
-.ext-pronoun-article::-webkit-scrollbar-thumb:hover,
-.ext-pronoun-final-transcriptions::-webkit-scrollbar-thumb:hover {
+.ext-pronun-article::-webkit-scrollbar-thumb:hover,
+.ext-pronun-final-transcriptions::-webkit-scrollbar-thumb:hover {
   background: #d8e6f2; 
 }
 
 @keyframes pulsate {
   0% {
     opacity: 1;
-    -webkit-transform: scale(.5,.5);
+    left: -10%;
   }
   100% {
     opacity: 0;
-    -webkit-transform: scale(1,1);
+    left: -50%;
   }
 }

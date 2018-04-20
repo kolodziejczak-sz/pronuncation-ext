@@ -1,17 +1,25 @@
-const cssPrefix = 'ext-pronoun-';
+const cssPrefix = 'ext-pronun-';
+const unreadClassName = cssPrefix + 'unread';
+const markClassName = cssPrefix + 'mark';
+const activeClassName = 'active';
+const tooltipInactive = 'Click on the mic or press space to record';
+const tooltipActive = 'Speak now';
+
 const rootId = cssPrefix + 'root';
 const bodyEl = document.querySelector('body');
-const activeClassName = 'active';
 
 const recognition = new webkitSpeechRecognition();
 recognition.continuous = true;
 recognition.interimResults = true;
+// ograniczam sie wylacznie do jezykow ktore sa zwracane przez getVoices - zeby funkcjonalnosc byla zawsze kompletna
 
+let voices = null;
 const synth = window.speechSynthesis;
-
+synth.onvoiceschanged = () => voices = synth.getVoices();
 
 
 let rootEl;
+let selectLangEl;
 let selectionBarEl;
 let recognitionEl;
 let synthEl;
@@ -21,6 +29,7 @@ let interimTranscriptionsEl;
 let textContainerEl;
 let listenerSelectionChange;
 let listenerEsc;
+let toogleRecognitionHandler;
 
 let state = {
   isOpened: false,
@@ -29,7 +38,7 @@ let state = {
   recording: false,
 }
 
-chrome.runtime.onMessage.addListener(function(req, sender, res) {
+chrome.runtime.onMessage.addListener((req, sender, res) => {
   switch(req.cmd) {
     case 'status':
       res(state.isOpened);
@@ -74,6 +83,9 @@ function openSelf() {
 }
 
 function closeSelf() {
+  if(toogleRecognitionHandler) {
+    document.removeEventListener('keydown',toogleRecognitionHandler);
+  }
   if(listenerEsc) {
     document.removeEventListener('keydown',listenerEsc);
   }
@@ -162,47 +174,130 @@ function openReader(text) {
 function createReader(text) {
   const readerEl = createElement('div','reader');
   
-  const toolbarEl = createToolbar();
+  const menuBarEl = createMenuBar();
   const textToReadEl = createTextToRead(text);
   const loggerEl = createLogger();
+  const toolbarEl = createToolbar();
 
-  readerEl.appendChild(toolbarEl);
+  readerEl.appendChild(menuBarEl);
   readerEl.appendChild(textToReadEl);
+  readerEl.appendChild(toolbarEl);
   readerEl.appendChild(loggerEl);
   return readerEl;
 }
 
-
-function createToolbar() {
-  const toolbarEl = createElement('div', 'toolbar');
+function createMenuBar() {
+  const menuBarEl = createElement('div', 'menu-bar');
+  const closeEl = createBtn('clear', closeSelf.bind(this));
   const redoEl = createBtn('tab_unselected', () => { 
     closeReader();
     toggleSelectionMode();
   });
-  recognitionEl = createBtn('mic', toggleRecognition);
-  synthEl = createBtn('volume_up', toggleSynthesis);
 
-  listenerSelectionChange=toggleDisabledWhenSelection.bind(null,synthEl);
-  document.addEventListener('selectionchange',listenerSelectionChange);
-
-  const closeEl = createBtn('clear', closeSelf.bind(this));
-
-  toolbarEl.appendChild(redoEl);
-  toolbarEl.appendChild(recognitionEl);
-  toolbarEl.appendChild(synthEl);
-  toolbarEl.appendChild(closeEl);
-  return toolbarEl;
-}
-
-function toggleDisabledWhenSelection(el) {
-  if(synth.speaking) return;
-  el.disabled = (getSelectedText().length === 0);
+  menuBarEl.appendChild(redoEl);
+  menuBarEl.appendChild(closeEl);
+  return menuBarEl;
 }
 
 function createTextToRead(text) {
   textContainerEl = createElement('div', 'article');
-  textContainerEl.innerHTML = parseTextToHTML(text);
+  textContainerEl.innerHTML = parseTextToHTML(text, unreadClassName);
+
+  synthEl = createBtn('volume_up', toggleSynthesis, 'synth-mic');
+  listenerSelectionChange=showSynthesisOption.bind(null,textContainerEl);
+
+  textContainerEl.addEventListener('mouseup',listenerSelectionChange);
+  textContainerEl.appendChild(synthEl);
+
   return textContainerEl;
+}
+
+function showSynthesisOption(parent, event) {
+  if(synth.speaking || event.target === synthEl) return;
+  const selectionIsEmpty = (getSelectedText().length === 0);
+  synthEl.style.display = selectionIsEmpty ? 'none' : 'flex';
+  if(!selectionIsEmpty) {
+    synthEl.style.left = (event.offsetX - parent.offsetLeft) + 'px';
+    synthEl.style.top = (event.offsetY - parent.offsetTop + 35) + 'px';
+  }
+}
+
+function createToolbar() {
+  const toolbarEl = createElement('div', 'toolbar');
+  
+  const settingsEl = createSettings();
+  const tooltipTextEl = createElement('p', 'tooltip');
+  tooltipTextEl.textContent = tooltipInactive;
+
+  recognitionEl = createBtn('mic', toggleRecognition.bind(null,tooltipTextEl), 'recognition-trigger'); 
+
+  toogleRecognitionHandler = spaceToToggleRecognition.bind(null,tooltipTextEl);
+  document.addEventListener('keydown', toogleRecognitionHandler); 
+
+  toolbarEl.appendChild(settingsEl);
+  toolbarEl.appendChild(tooltipTextEl);
+  toolbarEl.appendChild(recognitionEl);
+  return toolbarEl;
+}
+
+function createSettings() {
+  const settingsEl = createElement('div', 'settings');
+  selectLangEl = createSelectLangs(voices);
+  const triggerEl = createBtn('language', toggleVisibility.bind(this, selectLangEl), 'settings-trigger');
+
+  settingsEl.appendChild(triggerEl);
+  settingsEl.appendChild(selectLangEl);
+  return settingsEl;
+}
+
+function createSelectLangs(voices) {
+  const langsEl = createElement('select','lang-select');
+  voices.map(createOption).forEach(appendOption.bind(null,langsEl));
+  langsEl.onchange = () => {
+    const selectedVoice = voices.find(voice => voice.voiceURI === langsEl.value);
+    synth.voice = selectedVoice;
+    recognition.voice = selectedVoice.lang;
+  }
+  selectDefaultLang(langsEl, voices);  
+  return langsEl;
+}
+
+function createOption(voice) {
+  return new Option(voice.name,voice.voiceURI);
+}
+
+function appendOption(parent,option) {
+  parent.options[parent.options.length] = option;
+}
+
+function selectDefaultLang(selectEl, voices) {
+  const lang = getDocumentLang();
+  let voiceIndex = voices.findIndex(voice => parseLangKey(voice) === lang);
+  if(voiceIndex === -1) {
+    voiceIndex = voices.findIndex(voice => voice.default);
+  }
+  selectEl.selectedIndex = voiceIndex;  
+}
+
+function getDocumentLang() {
+  return document.documentElement.lang;
+}
+
+function parseLangKey(voice) {
+  return voice.lang.split('-').pop()
+}
+
+function toggleVisibility(el) {
+  const current = el.style.display;
+  el.style.display = current === "inline" ? "none" : "inline";
+}
+
+function spaceToToggleRecognition(tooltipTextEl,event) {
+  const isSpace = event.keyCode === 32;
+  if(isSpace) {
+    event.preventDefault();
+    toggleRecognition(tooltipTextEl);
+  }
 }
 
 function createLogger() {
@@ -225,16 +320,16 @@ function addToInterimTranscriptions(text) {
   interimTranscriptionsEl.textContent = text;
 }
 
-function parseTextToHTML(text) {
+function parseTextToHTML(text, className) {
   return text
     .split(' ')
-    .map(el => `<span class="unread">${el}</span>`)
+    .map(el => `<span class="${className}">${el}</span>`)
     .join(' ')
 }
 
-function createBtn(iconName, clickFn) {
-  const btnEl = createElement('button','btn');
-  
+function createBtn(iconName, clickFn, className) {
+  const btnEl = createElement('button', 'btn');
+
   if(iconName) {
     const iconEl = createElement('img','img');
     const iconPath = getImageUrl(iconName);
@@ -243,6 +338,11 @@ function createBtn(iconName, clickFn) {
   }
 
   btnEl.onclick = clickFn;
+
+  if(className) {
+    btnEl.classList.add(cssPrefix+className);
+  }
+  
   return btnEl;
 }
 
@@ -256,11 +356,13 @@ function createElement(tag, className) {
   return el;  
 }
 
-function toggleRecognition() {
+function toggleRecognition(tooltipTextEl) {
   if(state.recording) {
     recognition.stop();
+    tooltipTextEl.textContent = tooltipInactive;
   } else {
     recognition.start();
+    tooltipTextEl.textContent = tooltipActive;
   }
 }
 
@@ -310,6 +412,7 @@ recognition.onerror = function(event) {
 
 function onInterimTranscript(text) {
   addToInterimTranscriptions(text);
+  findAndMark(text);
 }
 
 function onFinalTranscript(text) {
@@ -319,19 +422,19 @@ function onFinalTranscript(text) {
 
 function findAndMark(text) {
   const words = text.split(' ').map(word => word.toUpperCase());
-
+  
   words.forEach(word => {
-    const el = [...textContainerEl.querySelectorAll('.unread')]
+    const el = [...textContainerEl.querySelectorAll('.' + unreadClassName)]
       .find(node => node.textContent.toUpperCase() === word);
     if(el) {
-      el.classList.remove('unread');
-      el.classList.add('mark');
+      el.classList.remove(unreadClassName);
+      el.classList.add(markClassName);
     }
   })
 }
 
 
-function toggleSynthesis() {
+function toggleSynthesis(e) {
   if(synth.speaking) {
     synthCancel();
   } else {
