@@ -70,10 +70,6 @@ body.ext-pronun-selection-mode *::selection {
   height: 30px;
 }
 
-.ext-pronun-menu-bar > .ext-pronun-btn:not(:last-of-type) {
-  width: 40px;
-}
-
 .ext-pronun-menu-bar > .ext-pronun-btn:last-of-type {
   margin-left: auto;
 }
@@ -97,7 +93,38 @@ body.ext-pronun-selection-mode *::selection {
   margin: 0;
   padding: 0;
   background: #fff;
+  min-width: 580px;
+  box-sizing: border-box;
   box-shadow: 0 2px 10px rgba(0,0,0,.2);
+}
+
+/** notification **/
+.ext-pronun-reader .ext-pronun-notification-bar {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.ext-pronun-notification-bar.info {
+  color: #004085;
+  background-color: #cce5ff;
+  border-bottom: 1px solid #b8daff;
+}
+
+.ext-pronun-notification-bar.alert {
+  color: #721c24;
+  background-color: #f8d7da;
+  border-bottom: 1px solid #f5c6cb;
+}
+
+.ext-pronun-reader .ext-pronun-notification-bar:empty {
+  display: none;
+}
+
+.ext-pronun-notification-bar > .ext-pronun-notification-msg {
+  margin: 0;
+  padding: 0 0 0 10px;
+  flex: 1;
 }
 
 /** article **/
@@ -157,6 +184,7 @@ body.ext-pronun-selection-mode *::selection {
   box-sizing: border-box;
   height: 20px;
   text-align: center;
+  padding: 0 0 0 5px;
 }
 
 .ext-pronun-toolbar .ext-pronun-lang-select {
@@ -295,7 +323,6 @@ body.ext-pronun-selection-mode *::selection {
 .ext-pronun-btn > .ext-pronun-img {
   width: 18px;
   height: 18px;
-
 }
 
 .ext-pronun-btn > .ext-pronun-img + .ext-pronun-text {

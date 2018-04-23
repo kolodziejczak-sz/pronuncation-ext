@@ -2,21 +2,24 @@ const cssPrefix = 'ext-pronun-';
 const unreadClassName = cssPrefix + 'unread';
 const markClassName = cssPrefix + 'mark';
 const activeClassName = 'active';
-const tooltipInactive = 'Click on the mic or press space to record';
-const tooltipActive = 'Speak now';
+
+const speechRecognitionErrorMessages = {
+  'no-speech': 'No speech was detected. You may need to adjust your microphone settings.',
+  'audio-capture': 'No microphone was found. Ensure that a microphone is installed and that microphone settings are configured correctly.',
+  'not-allowed': 'Permission to use microphone was denied or is already blocked.',
+  'default': 'Unknown error occured during speech recognition.'
+}
+
+const guiStrings = {
+  tooltipRecognitionOff:'Speak now',
+  tooltipRecognitionOn:'Click on the mic or press space to record',
+  selectionModeBar:'Use cursor to select the text you want to read.',
+  newBtn:'New',
+  saveBtn:'Save'
+}
 
 const rootId = cssPrefix + 'root';
 const bodyEl = document.querySelector('body');
-
-const recognition = new webkitSpeechRecognition();
-recognition.continuous = true;
-recognition.interimResults = true;
-// ograniczam sie wylacznie do jezykow ktore sa zwracane przez getVoices - zeby funkcjonalnosc byla zawsze kompletna
-
-let voices = null;
-const synth = window.speechSynthesis;
-synth.onvoiceschanged = () => voices = synth.getVoices();
-
 
 let rootEl;
 let selectLangEl;
@@ -24,6 +27,7 @@ let selectionBarEl;
 let recognitionEl;
 let synthEl;
 let readerEl;
+let notificationBarEl;
 let finalTranscriptionsEl;
 let interimTranscriptionsEl;
 let textContainerEl;
@@ -37,6 +41,15 @@ let state = {
   readerOpen: false,
   recording: false,
 }
+
+let voices = null;
+
+const recognition = new webkitSpeechRecognition();
+recognition.continuous = true;
+recognition.interimResults = true;
+
+const synth = window.speechSynthesis;
+synth.onvoiceschanged = () => voices = synth.getVoices();
 
 chrome.runtime.onMessage.addListener((req, sender, res) => {
   switch(req.cmd) {
@@ -111,7 +124,7 @@ function createWrapper() {
 function createSelectionModeBar() {
   const barEl = createElement('div','selection-mode-bar');
   const textEl = createElement('div','info');  
-  textEl.textContent = 'Use cursor to select the text you want to read.';
+  textEl.textContent = guiStrings.selectionModeBar;
   const closeEl = createBtn('clear', closeSelf.bind(this));
   barEl.appendChild(textEl);
   barEl.appendChild(closeEl);
@@ -175,11 +188,13 @@ function createReader(text) {
   const readerEl = createElement('div','reader');
   
   const menuBarEl = createMenuBar();
+  const notificationBarEl = createNotificationBar();
   const textToReadEl = createTextToRead(text);
   const loggerEl = createLogger();
   const toolbarEl = createToolbar();
 
   readerEl.appendChild(menuBarEl);
+  readerEl.appendChild(notificationBarEl);
   readerEl.appendChild(textToReadEl);
   readerEl.appendChild(toolbarEl);
   readerEl.appendChild(loggerEl);
@@ -189,14 +204,21 @@ function createReader(text) {
 function createMenuBar() {
   const menuBarEl = createElement('div', 'menu-bar');
   const closeEl = createBtn('clear', closeSelf.bind(this));
-  const redoEl = createBtn('tab_unselected', () => { 
+  const saveEl = createBtnWithText(guiStrings.saveBtn,'save', null);
+  const redoEl = createBtnWithText(guiStrings.newBtn,'tab_unselected', () => { 
     closeReader();
     toggleSelectionMode();
   });
 
   menuBarEl.appendChild(redoEl);
+  menuBarEl.appendChild(saveEl);
   menuBarEl.appendChild(closeEl);
   return menuBarEl;
+}
+
+function createNotificationBar() {
+  notificationBarEl = createElement('div', 'notification-bar');
+  return notificationBarEl;
 }
 
 function createTextToRead(text) {
@@ -210,6 +232,10 @@ function createTextToRead(text) {
   textContainerEl.appendChild(synthEl);
 
   return textContainerEl;
+}
+
+function parseTextToHTML(text, className) {
+  return text.replace(/(\S+)/g,`<span class="${className}">$1</span>`);
 }
 
 function showSynthesisOption(parent, event) {
@@ -227,7 +253,7 @@ function createToolbar() {
   
   const settingsEl = createSettings();
   const tooltipTextEl = createElement('p', 'tooltip');
-  tooltipTextEl.textContent = tooltipInactive;
+  tooltipTextEl.textContent = guiStrings.tooltipRecognitionOn;
 
   recognitionEl = createBtn('mic', toggleRecognition.bind(null,tooltipTextEl), 'recognition-trigger'); 
 
@@ -253,13 +279,15 @@ function createSettings() {
 function createSelectLangs(voices) {
   const langsEl = createElement('select','lang-select');
   voices.map(createOption).forEach(appendOption.bind(null,langsEl));
-  langsEl.onchange = () => {
-    const selectedVoice = voices.find(voice => voice.voiceURI === langsEl.value);
-    synth.voice = selectedVoice;
-    recognition.voice = selectedVoice.lang;
-  }
+  langsEl.onchange = onComboboxLangSelect.bind(this, voices)
   selectDefaultLang(langsEl, voices);  
   return langsEl;
+}
+
+function onComboboxLangSelect(voices, event) {
+  const selectedVoice = voices.find(voice => voice.voiceURI === event.currentTarget.value);
+  synth.voice = selectedVoice;
+  recognition.voice = selectedVoice.lang;
 }
 
 function createOption(voice) {
@@ -276,7 +304,8 @@ function selectDefaultLang(selectEl, voices) {
   if(voiceIndex === -1) {
     voiceIndex = voices.findIndex(voice => voice.default);
   }
-  selectEl.selectedIndex = voiceIndex;  
+  selectEl.selectedIndex = voiceIndex;
+  this.onComboboxLangSelect(voices, { currentTarget: selectEl})
 }
 
 function getDocumentLang() {
@@ -320,11 +349,22 @@ function addToInterimTranscriptions(text) {
   interimTranscriptionsEl.textContent = text;
 }
 
-function parseTextToHTML(text, className) {
-  return text
-    .split(' ')
-    .map(el => `<span class="${className}">${el}</span>`)
-    .join(' ')
+function createBtnWithText(text, iconName, clickFn) {
+  const btnEl = createElement('button', 'btn');
+  btnEl.onclick = clickFn;
+
+  if(iconName) {
+    const iconEl = createElement('img','img');
+    const iconPath = getImageUrl(iconName);
+    iconEl.src = iconPath;
+    btnEl.appendChild(iconEl);
+  }
+
+  const textEl = createElement('span','text');
+  textEl.textContent=text;
+  btnEl.appendChild(textEl);
+
+  return btnEl;
 }
 
 function createBtn(iconName, clickFn, className) {
@@ -359,10 +399,10 @@ function createElement(tag, className) {
 function toggleRecognition(tooltipTextEl) {
   if(state.recording) {
     recognition.stop();
-    tooltipTextEl.textContent = tooltipInactive;
+    tooltipTextEl.textContent = guiStrings.tooltipRecognitionOn;
   } else {
     recognition.start();
-    tooltipTextEl.textContent = tooltipActive;
+    tooltipTextEl.textContent = guiStrings.tooltipRecognitionOff;
   }
 }
 
@@ -396,19 +436,16 @@ recognition.onresult = function(event) {
 recognition.onerror = function(event) {
   switch(event.error) {
     case 'no-speech':
-      event.error.message="No speech was detected. You may need to adjust your microphone settings.";
-      break;
     case 'audio-capture':
-      event.error.message="No microphone was found. Ensure that a microphone is installed and that microphone settings are configured correctly.";
-      break;
     case 'not-allowed':
-      event.error.message="Permission to use microphone was denied or is already blocked.";
+      event.error.message=speechRecognitionErrorMessages[event.error];
       break;
     default:
-      event.error.message="Unknown error occured during speech recognition."
+      event.error.message=speechRecognitionErrorMessages['default'];
   }
-  globalErrorHandler(event.error);
+  alert(event.error.message);
 };
+
 
 function onInterimTranscript(text) {
   addToInterimTranscriptions(text);
@@ -421,11 +458,13 @@ function onFinalTranscript(text) {
 }
 
 function findAndMark(text) {
-  const words = text.split(' ').map(word => word.toUpperCase());
+  const words = text.trim().split(' ').map(word => word.toUpperCase());
   
   words.forEach(word => {
     const el = [...textContainerEl.querySelectorAll('.' + unreadClassName)]
-      .find(node => node.textContent.toUpperCase() === word);
+      .find(node => {
+        return normalizeText(node.textContent) === word
+      });
     if(el) {
       el.classList.remove(unreadClassName);
       el.classList.add(markClassName);
@@ -433,6 +472,10 @@ function findAndMark(text) {
   })
 }
 
+function normalizeText(text) {
+  const punctChars = /[\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,\-.\/:;<=>?@\[\]^_`{|}~]/;
+  return text.replace(punctChars, '').toUpperCase();
+}
 
 function toggleSynthesis(e) {
   if(synth.speaking) {
@@ -448,13 +491,15 @@ function synthCancel() {
 
 function synthStart() {
   const text = getSelectedText();
+
   if(text.length === 0) {
     return;
   }
   const utterThis = new SpeechSynthesisUtterance(text);
+  utterThis.lang = synth.voice.lang;
+  utterThis.voice = synth.voice;
   utterThis.onstart = onSynthStart;
   utterThis.onend = onSynthStop;
-
   synth.speak(utterThis);
 }
 
@@ -466,7 +511,22 @@ function onSynthStart() {
   synthEl.classList.add(activeClassName);
 }
 
-function globalErrorHandler(error) {
+function alert(msg, type) {
+  const closeEl = createBtn('clear', clearNotification);
+  const msgEl = createElement('p', 'notification-msg');
+  msgEl.textContent = msg;
 
+  type = type || 'alert';
+  notificationBarEl.classList.remove('alert');
+  notificationBarEl.classList.remove('info');
+  notificationBarEl.classList.add(type);
+
+  clearNotification();  
+
+  notificationBarEl.appendChild(msgEl);
+  notificationBarEl.appendChild(closeEl);
 }
 
+function clearNotification() {
+  notificationBarEl.innerHTML = '';
+}
