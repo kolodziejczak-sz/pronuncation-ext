@@ -28,3 +28,24 @@ node_modules
 
 # Debug log from npm
 npm-debug.log
+
+
+*.seed
+*.log
+*.csv
+*.dat
+*.out
+*.pid
+*.gz
+*.marko.js
+*.sublime-workspace
+*.sublime-project
+*.original
+
+site/lib-cov
+site/pids
+site/logs
+site/results
+site/static
+site/build
+site/.cache
