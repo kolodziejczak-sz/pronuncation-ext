@@ -25,8 +25,6 @@ app.get('/', home);
 app.listen(port, function() {
   console.log('App is listening on port', port);
 
-  // The browser-refresh module uses this event to know that the
-  // process is ready to serve traffic after the restart
   if (process.send) {
     process.send('online');
   }

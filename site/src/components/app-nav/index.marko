@@ -1,0 +1,47 @@
+class {}
+
+style {
+  nav {
+    color: #1b1e21;
+    background-color: #d6d8d9;
+    border-bottom: 1px solid #c6c8ca;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+  }
+  nav > .logo {
+    margin-right: 20px;
+  }
+  nav > .links > li {
+    display: inline-block;
+    padding: 4px 8px;
+    color: rgba(0,0,0,.8);
+  }
+  nav > .links > li.active,
+  nav > .links > li:hover { color: rgba(0,0,0,.5); }
+  nav > .links > li.active { font-weight: bold; }
+  nav > .links > li > a { text-decoration: none; color: inherit; }
+}
+
+<nav>
+  <div.logo>LOGO</div>
+  <ul.links>
+    <li class="${data.link==='/' && 'active'}">
+      <a href="/">Home</a>
+    </li>
+    <if(input.user)>
+      <li class="${data.link==='/profile' && 'active'}">
+        <a href="/profile">Profile</a>
+      </li>
+      <li><a href="/logout">Log out</a></li>
+    </if>
+    <else>
+      <li class="${data.link==='/register' && 'active'}">
+        <a href="/register">Register</a>
+      </li>
+      <li class="${data.link==='/login' && 'active'}">
+        <a href="/login">Log in</a>
+      </li>
+    </else>
+  </ul>
+</nav>

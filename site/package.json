@@ -14,5 +14,8 @@
     "lasso": "^3.1.4",
     "lasso-marko": "^2.4.0",
     "marko": "^4.9.6"
+  },
+  "devDependencies": {
+    "browser-refresh-taglib": "^1.1.0"
   }
 }

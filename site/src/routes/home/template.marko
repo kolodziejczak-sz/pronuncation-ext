@@ -3,10 +3,14 @@
   <head>
     <meta charset="UTF-8">
     <title>Marko example</title>
+    <link rel="stylesheet" href="../../../static/reset.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <lasso-head/>
   </head>
   <body>
-    <h1>Hello ${data.name}</h1>
-     <lasso-body/>
+    <app-nav user=data.user link=data.link/>
+    
+    <lasso-body/>
+    <browser-refresh enabled="true"/>
   </body>
 </html>
