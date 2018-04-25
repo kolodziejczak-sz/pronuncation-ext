@@ -1,6 +1,9 @@
 require('marko/node-require').install();
 const express = require('express');
 const app = express();
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser')
+const session = require('express-session')
 const port = 4200;
 const isProduction = false;
 
@@ -16,10 +19,30 @@ require('lasso').configure({
 
 
 const home = require('./src/routes/home');
+const login = require('./src/routes/login');
+const profile = require('./src/routes/home');
+const register = require('./src/routes/home');
 
+const user = require('./src/lib/middleware/user');
 
 app.use(require('lasso/middleware').serveStatic());
+app.use(cookieParser())
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }))
+// parse application/json
+app.use(bodyParser.json())
+app.use(session({
+  secret: 'keyboard cat',
+  resave: true,
+  saveUninitialized: true,
+  cookie: { maxAge: 60*1000 }
+}))
+app.use(user);
+
 app.get('/', home);
+app.get('/login', login.form);
+app.post('/login', login.submit);
+app.get('/logout', login.logout);
 
 
 app.listen(port, function() {

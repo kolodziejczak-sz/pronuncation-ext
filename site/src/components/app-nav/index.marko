@@ -2,12 +2,12 @@ class {}
 
 style {
   nav {
-    color: #1b1e21;
-    background-color: #d6d8d9;
-    border-bottom: 1px solid #c6c8ca;
+    color: #155724;
+    background-color: #d4edda;
+    border-bottom: 1px solid #c3e6cb;
     display: flex;
     align-items: center;
-    padding: 0 20px;
+    padding: 10px 20px;
   }
   nav > .logo {
     margin-right: 20px;
@@ -21,17 +21,20 @@ style {
   nav > .links > li:hover { color: rgba(0,0,0,.5); }
   nav > .links > li.active { font-weight: bold; }
   nav > .links > li > a { text-decoration: none; color: inherit; }
+  nav > .links.right { margin-left: auto; }
 }
 
 <nav>
   <div.logo>LOGO</div>
-  <ul.links>
+  <ul.links.left>
     <li class="${data.link==='/' && 'active'}">
       <a href="/">Home</a>
     </li>
+  </ul>
+  <ul.links.right>
     <if(input.user)>
       <li class="${data.link==='/profile' && 'active'}">
-        <a href="/profile">Profile</a>
+        <a href="/profile">${input.user.name}</a>
       </li>
       <li><a href="/logout">Log out</a></li>
     </if>

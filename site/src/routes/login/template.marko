@@ -2,15 +2,16 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <title>Pronouncation example</title>
+    <title>Log in - pronouncation extension</title>
     <link rel="stylesheet" href="../../../static/reset.css">
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <lasso-head/>
   </head>
   <body>
     <app-nav user=data.user link=data.link/>
-    <h1 if(data.user)>Hello ${data.user.name}</h1>
-    <h1 else>Hello stranger!</h1>
+    <main class="content">
+      <login-form username=data.username msg=data.msg />
+    </main>
     <lasso-body/>
     <browser-refresh enabled="true"/>
   </body>
