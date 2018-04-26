@@ -1,8 +1,13 @@
 class {
   onCreate() {
     this.state = {
-      errorMsg: ''
+      errorMsg: '',
+      username: ''
     }
+  }
+
+  handleUsernameChange(event, el) {
+    this.state.username = el.value;
   }
 
   handleSubmit(event) {
@@ -24,7 +29,7 @@ style {
   }
   form, fieldset {
     padding: 10px;
-    border: 1px solid #c3e6cb;
+    border: 1px solid #cbd6e2;
   }
   .form-control { 
     display: inline-block; 
@@ -40,7 +45,7 @@ style {
 
   .submit {
     background: transparent;
-    border: 1px solid #155724;
+    border: 1px solid #cbd6e2;
     margin: 10px;
     cursor: pointer;
   }
@@ -56,14 +61,16 @@ style {
     <legend.small>Enter username and password below</legend>
     <div.form-control>
       <label for="username">Username</label>
-      <input key="username" id="username" name="username" type="text" value=data.username/>
+      <input key="username" id="username" name="username" type="text" 
+             value=(data.username||state.username) 
+             on-change('handleUsernameChange') required/>
     </div>
     <div.form-control>
       <label for="password">Password</label>
-      <input key="password" id="password" name="password" type="password"/>
+      <input key="password" id="password" name="password" type="password" required/>
     </div>
     <p.small>If you don't have account yet you can register by clicking <a href="/register">here</a></p>
   </fieldset>
-  <input.submit type="submit" value="Log in"/>
+  <button.submit type="submit">Log in</button>
   <div.error if(state.errorMsg || data.msg)>${state.errorMsg || data.msg}</div>
 </form>

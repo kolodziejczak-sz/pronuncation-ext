@@ -1,0 +1,110 @@
+class {
+  onCreate() {
+    this.state = {
+      errorMsg: '',
+      name: '',
+      email: ''
+    }
+
+    this.messages = {
+      name: 'Name should contain atleast 5 characters',
+      email: 'Incorrect email',
+      password1: 'Passwords should be equal',
+      password2: 'Passwords should be equal'
+    }
+  }
+
+  handleFieldChange(name,event,el) {
+    this.state[name] = el.value;
+  }
+
+  handleSubmit(event) {
+    this.state.errorMsg = ''
+    const formValue = this.getFormValue();
+    const invalidControlKey = Object.keys(formValue).find(key => !formValue[key].valid);
+    if(invalidControlKey) {
+      this.state.errorMsg = this.messages[invalidControlKey];
+      event.preventDefault();    
+      return;      
+    }
+    if(formValue['password1'].value!==formValue['password2'].value) {
+      this.state.errorMsg = this.messages['password1'];
+      event.preventDefault();
+      return;
+    }
+  }
+
+  getFormValue() {
+    const controls = [...document.querySelectorAll('.form-control > input')];
+    return controls.reduce((acc, controlEl) => {
+      acc[controlEl.getAttribute('name')] = {
+        value: controlEl.value,
+        valid: controlEl.checkValidity()
+      }
+      return acc;
+    }, {})
+  }
+}
+
+style {
+  h2 {
+    margin: 5px 0 15px 0;
+    font-size: 24px;
+  }
+  form, form  * { color: #333; }
+  form, fieldset {
+    padding: 10px;
+    border: 1px solid #cbd6e2;
+  }
+  .form-control:not(:first-of-type) { margin-top: 5px;}
+  .form-control > label,
+  .form-control > input {  display: block; }
+
+  .small { font-size: 12px; }
+
+  p { margin: 5px 0; }
+
+  .submit {
+    background: transparent;
+    border: 1px solid #cbd6e2;
+    margin: 10px;
+    cursor: pointer;
+  }
+  .error {
+    display: inline-block;
+    color: #e60a22;
+    font-size: 12px;
+  }
+}
+
+<form action="/register" method="post" on-submit('handleSubmit')>
+  <h2>Register form</h2>
+  <fieldset>
+    <legend.small>Username should contain be at least 5 characters</legend>
+    <div.form-control>
+      <label for="username">Name</label>
+      <input id="name" name="name" type="text" on-change('handleFieldChange','name')
+             value=((data.form||{}).name||(state.name)) pattern=".{5,}" required/>
+    </div>
+    <div.form-control>
+      <label for="email">E-mail</label>
+      <input id="email" name="email" type="email" on-change('handleFieldChange','email')
+             pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,63}$"
+             value=((data.form||{}).email||(state.email)) required/>
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend.small>Passwords should be equal</legend>
+    <div.form-control>
+      <label for="password1">Password</label>
+      <input id="password1" name="password1" type="password" required/>
+    </div>
+    <div.form-control>
+      <label for="password2">Re-type password</label>
+      <input id="password2" name="password2" type="password" required/>
+    </div>
+  </fieldset>
+  <p.small>I have account. Click <a href="/register">here</a> to login</p>
+  <button.submit type="submit">Register</button>
+  <div.error if(state.errorMsg || data.msg)>${state.errorMsg || data.msg}</div>
+</form>

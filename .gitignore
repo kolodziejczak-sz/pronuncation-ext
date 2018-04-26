@@ -41,6 +41,7 @@ npm-debug.log
 *.sublime-workspace
 *.sublime-project
 *.original
+*.vscode
 
 site/lib-cov
 site/pids
