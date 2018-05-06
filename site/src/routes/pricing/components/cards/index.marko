@@ -1,0 +1,109 @@
+class {}
+
+style {
+  .cards {
+    padding-top: 30px;
+    display: flex;
+    margin: auto;
+    max-width: 960px;
+    justify-content: space-around;
+  }
+
+  .card {
+    display: inline-flex;
+    flex-direction: column;
+    min-width: 220px;
+    margin: 0 15px;
+    border: 1px solid rgba(0,0,0,.125);
+    border-radius: .25rem;
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, .05);
+    text-align: center;
+  }
+
+  .card-header {
+    padding: .75rem 1.25rem;
+    margin-bottom: 0;
+    background-color: rgba(0,0,0,.03);
+    border-bottom: 1px solid rgba(0,0,0,.125);
+  }
+
+  .card-body {
+    padding: 1.25rem;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+  }
+
+  .card-title {
+    margin-bottom: .75rem;
+    font-size: 2.5rem;
+  }
+
+  .card .list {
+    margin-bottom: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  .card .list > li {
+    margin: .75rem 0;
+  }
+
+  .card .light {
+    color: gray;
+    font-size: 2rem;
+  }
+
+  .card button {
+    cursor: pointer;
+    font-size: 1.5rem;
+    padding: 5px;
+    background: transparent;
+    border: 1px solid currentColor;
+    color: #5880ab;
+    border-radius: 4px;
+  }
+
+  .card button a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .card .try {
+    display: block;
+    margin-top: auto;
+  }
+}
+<div.cards>
+  <div.card>
+    <div.card-header>Free</div>
+    <div.card-body>
+      <h2.card-title>
+        <span.bold>$0</span><span.light> / mo</span>
+      </h2>
+      <ul.list>
+        <li>Text limited to 150 words</li>
+        <li>No records about your session</li>
+      </ul>
+      <button.try>
+        <a href="/register">Register for free</a>
+      </button>
+    </div>
+  </div>
+  <div.card>
+    <div.card-header>Premium</div>
+    <div.card-body>
+      <h2.card-title>
+        <span.bold>$5</span><span.light> / mo</span>
+      </h2>
+      <ul.list>
+        <li>Unlimited text length</li>
+        <li>Opportunity to save and browse through sessions</li>
+        <li>Basic stats about every sessions</li>
+        <li>Support via email</li>
+      </ul>
+      <button.try>
+        Get started
+      </button>
+    </div>
+  </div>
+</div>

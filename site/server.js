@@ -23,15 +23,14 @@ require('lasso').configure({
 const home = require('./src/routes/home');
 const login = require('./src/routes/login');
 const profile = require('./src/routes/home');
+const pricing = require('./src/routes/pricing');
 const register = require('./src/routes/register');
 
 const user = require('./src/lib/middleware/user');
 
 app.use(require('lasso/middleware').serveStatic());
 app.use(cookieParser())
-// parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
-// parse application/json
 app.use(bodyParser.json())
 app.use(session({
   secret: 'keyboard cat',
@@ -42,6 +41,7 @@ app.use(session({
 app.use(user);
 
 app.get('/', home);
+app.get('/pricing', pricing);
 app.get('/register', register.form);
 app.post('/register', register.submit);
 app.get('/login', login.form);

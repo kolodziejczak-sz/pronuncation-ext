@@ -2,12 +2,14 @@ class {}
 
 style {
   nav {
-    background-color: #f5f8fa;
+    background-color: #fff;
     border-bottom: 1px solid #cbd6e2;
-    color: #33475b;
+    color: #545454;
     display: flex;
     align-items: center;
     padding: 10px 20px;
+    box-sizing: border-box;
+    height: 45px;
   }
   nav > .logo {
     margin-right: 20px;
@@ -29,6 +31,9 @@ style {
   <ul.links.left>
     <li class="${data.link==='/' && 'active'}">
       <a href="/">Home</a>
+    </li>
+    <li class="${data.link==='/pricing' && 'active'}">
+      <a href="/pricing">Pricing</a>
     </li>
   </ul>
   <ul.links.right>
