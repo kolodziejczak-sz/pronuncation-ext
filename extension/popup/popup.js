@@ -14,8 +14,8 @@ function closeContentScript(tab, callback) {
   sendToTab(tab, { cmd: 'close' }, callback);
 }
 
-function openContentScript(tab, callback) {
-  sendToTab(tab, { cmd: 'open' }, callback);
+function openContentScript(tab, account, callback) {
+  sendToTab(tab, { cmd: 'open', account: account }, callback);
 }
 
 function getContentScriptStatus(tab, callback) {
@@ -33,9 +33,12 @@ document.addEventListener('DOMContentLoaded', () => {
         infoEl = document.getElementById('info'),
         triggerEl = document.getElementById('trigger');
 
+  let accountType = 0;
+
   getCurrentTab(tab => initComponents(tab));
 
   function initComponents(tab) {
+    // TODO: LOGIN AND CHECKING FOR STATUS
     const isEncrypted = isHttps(tab.url);
     console.log(isEncrypted);
     initTriggerEl(tab, isEncrypted);
@@ -65,10 +68,10 @@ document.addEventListener('DOMContentLoaded', () => {
     triggerEl.textContent = strings.triggerEl.start;
 
     if(!triggerEl.disabled) {
-      triggerEl.onclick = openContentScript.bind(null,tab,() => {
-        window.close();
-        //triggerAsStop(tab)
-      });
+      triggerEl.onclick = openContentScript.bind(null,
+        tab,
+        accountType,
+        () => window.close());
     } 
   }
 
@@ -80,6 +83,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const strings = {
+    account: {
+      0: 'Free',
+      1: 'Premium'
+    },
     infoEl: {
       success: 'Your connection is encrypted.',
       danger: 'Your connection is not encrypted.'

@@ -2,6 +2,7 @@ const cssPrefix = 'ext-pronun-';
 const unreadClassName = cssPrefix + 'unread';
 const markClassName = cssPrefix + 'mark';
 const activeClassName = 'active';
+const isPremium = false;
 
 const speechRecognitionErrorMessages = {
   'no-speech': 'No speech was detected. You may need to adjust your microphone settings.',
@@ -14,6 +15,8 @@ const guiStrings = {
   tooltipRecognitionOff:'Speak now',
   tooltipRecognitionOn:'Click on the mic or press space to record',
   selectionModeBar:'Use cursor to select the text you want to read.',
+  sessionSaveSucced:'Session saved',
+  sessionSaveFailed:'Saving session failed. Try again later.',
   newBtn:'New',
   saveBtn:'Save'
 }
@@ -42,6 +45,8 @@ let state = {
   recording: false,
 }
 
+let stats = null;
+
 let voices = null;
 
 const recognition = new webkitSpeechRecognition();
@@ -57,6 +62,7 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
       res(state.isOpened);
       break;
     case 'open':
+      isPremium = req.account === 1;
       openSelf();
       res(true);
       break;
@@ -185,6 +191,17 @@ function openReader(text) {
 }
 
 function createReader(text) {
+  if(isPremium) {
+    stats = {
+      pageURL: document.href,
+      startTime: new Date(),
+      saveTime: null,
+      synthesis: [],
+      interimResults: [],
+      finalResults: [],
+      innerHTML: null
+    };
+  }
   const readerEl = createElement('div','reader');
   
   const menuBarEl = createMenuBar();
@@ -204,14 +221,16 @@ function createReader(text) {
 function createMenuBar() {
   const menuBarEl = createElement('div', 'menu-bar');
   const closeEl = createBtn('clear', closeSelf.bind(this));
-  const saveEl = createBtnWithText(guiStrings.saveBtn,'save', null);
   const redoEl = createBtnWithText(guiStrings.newBtn,'tab_unselected', () => { 
     closeReader();
     toggleSelectionMode();
   });
 
   menuBarEl.appendChild(redoEl);
-  menuBarEl.appendChild(saveEl);
+  if(stats) {
+    const saveEl = createBtnWithText(guiStrings.saveBtn,'save', saveSession.bind(this));
+    menuBarEl.appendChild(saveEl);
+  }
   menuBarEl.appendChild(closeEl);
   return menuBarEl;
 }
@@ -318,7 +337,7 @@ function parseLangKey(voice) {
 
 function toggleVisibility(el) {
   const current = el.style.display;
-  el.style.display = current === "inline" ? "none" : "inline";
+  el.style.display = current === 'inline' ? 'none' : 'inline';
 }
 
 function spaceToToggleRecognition(tooltipTextEl,event) {
@@ -438,23 +457,27 @@ recognition.onerror = function(event) {
     case 'no-speech':
     case 'audio-capture':
     case 'not-allowed':
-      event.error.message=speechRecognitionErrorMessages[event.error];
+      alert(speechRecognitionErrorMessages[event.error]);
       break;
     default:
-      event.error.message=speechRecognitionErrorMessages['default'];
+      alert(speechRecognitionErrorMessages['default']);
   }
-  alert(event.error.message);
 };
-
 
 function onInterimTranscript(text) {
   addToInterimTranscriptions(text);
   findAndMark(text);
+  if(stats) {
+    stats.interimResults.push(text);
+  }
 }
 
 function onFinalTranscript(text) {
   addToFinalTranscriptions(text);
   findAndMark(text);
+  if(stats) {
+    stats.finalResults.push(text);
+  }
 }
 
 function findAndMark(text) {
@@ -501,6 +524,9 @@ function synthStart() {
   utterThis.onstart = onSynthStart;
   utterThis.onend = onSynthStop;
   synth.speak(utterThis);
+  if(stats) {
+    stats.synthesis.push(text);
+  }
 }
 
 function onSynthStop() {
@@ -530,3 +556,19 @@ function alert(msg, type) {
 function clearNotification() {
   notificationBarEl.innerHTML = '';
 }
+
+
+function saveSession() {
+  if(stats) {
+    const htmlWithoutSyncButton = textContainerEl.innerHTML.replace('/<button(.*)button>/','');
+    stats.innerHTML = htmlWithoutSyncButton;
+    stats.saveTime = new Date();
+    postSession(stats);
+  }
+}
+
+function postSession(stats) {
+  console.log(stats);
+  alert('')
+}
+

@@ -1,0 +1,46 @@
+<div id="ext-pronun-root">
+  <div class="ext-pronun-wrapper"></div>
+  <div class="ext-pronun-selection-mode-bar" id="ext-pronun-selection">
+    <div class="ext-pronun-info">Use cursor to select the text you want to read.</div>
+    <button class="ext-pronun-btn" id="ext-pronun-close-selection">
+      <img class="ext-pronun-img" src="chrome-extension://iccpgmgkieejeofpflelfpadfdmdegnc/content/icons/clear.svg">
+    </button>
+  </div>
+  <div class="ext-pronun-reader" id="ext-pronun-reader">
+    <div class="ext-pronun-menu-bar">
+      <button class="ext-pronun-btn" id="ext-pronun-new">
+        <img class="ext-pronun-img" src="chrome-extension://iccpgmgkieejeofpflelfpadfdmdegnc/content/icons/tab_unselected.svg">
+        <span class="ext-pronun-text">New</span>
+      </button>
+      <button class="ext-pronun-btn" id="ext-pronun-save">
+        <img class="ext-pronun-img" src="chrome-extension://iccpgmgkieejeofpflelfpadfdmdegnc/content/icons/save.svg">
+        <span class="ext-pronun-text">Save</span>
+      </button>
+      <button class="ext-pronun-btn" id="ext-pronun-close-reader">
+        <img class="ext-pronun-img" src="chrome-extension://iccpgmgkieejeofpflelfpadfdmdegnc/content/icons/clear.svg">
+      </button>
+    </div>
+    <div class="ext-pronun-notification-bar"></div>
+    <div class="ext-pronun-article">
+      <button class="ext-pronun-btn ext-pronun-synth-mic" id="ext-pronun-speaker">
+        <img class="ext-pronun-img" src="chrome-extension://iccpgmgkieejeofpflelfpadfdmdegnc/content/icons/volume_up.svg">
+      </button>
+    </div>
+    <div class="ext-pronun-toolbar">
+      <div class="ext-pronun-settings">
+        <button class="ext-pronun-btn ext-pronun-settings-trigger" id="ext-pronun-lang-btn">
+          <img class="ext-pronun-img" src="chrome-extension://iccpgmgkieejeofpflelfpadfdmdegnc/content/icons/language.svg">
+        </button>
+        <select class="ext-pronun-lang-select" id="ext-pronun-lang-select"></select>
+      </div>
+      <p class="ext-pronun-tooltip" id="ext-pronun-tooltip">Click on the mic or press space to record</p>
+      <button class="ext-pronun-btn ext-pronun-recognition-trigger" id="ext-pronun-mic">
+        <img class="ext-pronun-img" src="chrome-extension://iccpgmgkieejeofpflelfpadfdmdegnc/content/icons/mic.svg">
+      </button>
+    </div>
+    <div class="ext-pronun-logger">
+      <ul class="ext-pronun-final-transcriptions" id="ext-pronun-final"></ul>
+      <span class="ext-pronun-interim-transcription" id="ext-pronun-interim"></span>
+    </div>
+  </div>
+</div>
