@@ -3,8 +3,17 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser')
-const session = require('express-session')
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+
+const https = require('https');
+const path = require('path');
+const fs = require('fs');
+
+const certOptions = {
+  key: fs.readFileSync(path.resolve('./cert/server.key')),
+  cert: fs.readFileSync(path.resolve('./cert/server.crt'))
+}
 
 const port = 4200;
 const isProduction = false;
@@ -30,7 +39,7 @@ const user = require('./src/lib/middleware/user');
 
 app.use(require('lasso/middleware').serveStatic());
 app.use(cookieParser())
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 app.use(session({
   secret: 'keyboard cat',
@@ -47,9 +56,13 @@ app.post('/register', register.submit);
 app.get('/login', login.form);
 app.post('/login', login.submit);
 app.get('/logout', login.logout);
+app.post('/api/session-save', (req,res) => {
+  console.log(req.body);
+  res.status(200).send({msg:"OK MAN WE GOT IT", data:req.body})
+});
 
 
-app.listen(port, function() {
+https.createServer(certOptions, app).listen(port, function() {
   console.log('App is listening on port', port);
   mongoose.connect('mongodb://localhost/pronouncation', (err) => {
     if(err) {

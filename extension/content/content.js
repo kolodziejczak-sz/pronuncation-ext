@@ -2,7 +2,7 @@ const cssPrefix = 'ext-pronun-';
 const unreadClassName = cssPrefix + 'unread';
 const markClassName = cssPrefix + 'mark';
 const activeClassName = 'active';
-const isPremium = false;
+const remoteUrl = 'https://localhost:4200/api/session-save';
 
 const speechRecognitionErrorMessages = {
   'no-speech': 'No speech was detected. You may need to adjust your microphone settings.',
@@ -44,6 +44,8 @@ let state = {
   readerOpen: false,
   recording: false,
 }
+
+let isPremium = false;
 
 let stats = null;
 
@@ -193,7 +195,7 @@ function openReader(text) {
 function createReader(text) {
   if(isPremium) {
     stats = {
-      pageURL: document.href,
+      pageURL: window.location.href,
       startTime: new Date(),
       saveTime: null,
       synthesis: [],
@@ -543,9 +545,9 @@ function alert(msg, type) {
   msgEl.textContent = msg;
 
   type = type || 'alert';
-  notificationBarEl.classList.remove('alert');
-  notificationBarEl.classList.remove('info');
-  notificationBarEl.classList.add(type);
+  notificationBarEl.classList.remove(cssPrefix + 'alert');
+  notificationBarEl.classList.remove(cssPrefix + 'info');
+  notificationBarEl.classList.add(cssPrefix + type);
 
   clearNotification();  
 
@@ -560,15 +562,27 @@ function clearNotification() {
 
 function saveSession() {
   if(stats) {
-    const htmlWithoutSyncButton = textContainerEl.innerHTML.replace('/<button(.*)button>/','');
-    stats.innerHTML = htmlWithoutSyncButton;
+    const btnRegex = /<button(.*)button>/;
+    const htmlWithoutButton = textContainerEl.innerHTML.replace(btnRegex,'');
+    stats.innerHTML = htmlWithoutButton;
     stats.saveTime = new Date();
     postSession(stats);
   }
 }
 
 function postSession(stats) {
-  console.log(stats);
-  alert('')
+  const req = new XMLHttpRequest();
+  req.onreadystatechange = () => {
+    if (this.readyState === 4) {
+      if(this.status === 200) {
+        alert(guiStrings.sessionSaveSucced, 'info');
+      } else {
+        alert(guiStrings.sessionSaveFailed);
+      }
+    }
+  };
+  req.open('POST', remoteUrl, true);
+  req.setRequestHeader('Content-type', 'application/json');
+  req.send(JSON.stringify(stats));
 }
 

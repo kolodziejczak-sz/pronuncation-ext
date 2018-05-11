@@ -18,19 +18,47 @@ exports.form = function(req, res) {
 };
 
 exports.submit = function(req, res) {
-  const form = req.body;
-  User.findOne({ name: form.username }, (err, user) => {
+  const credentials = req.body;
+  exports.login(credentials, (err, user) => {
     if(err) throw err;
-    if(user && user.validPassword(form.password)) {
-      exports.login(user, req, res);
+    if(user) {
+      exports.signInUser(user, req, res);
+    } else {
+      tryAgainForm(credentials, res);
+    }
+  }) 
+};
+
+exports.apiLogin = function(req, res) {
+  const credentials = req.body;
+  exports.login(credentials, (err, user) => {
+    if(err) internalServerApiError(res);
+    if(user) {
+      user.getLicense((err, license) => {
+        if(err) internalServerApiError(res);
+        user = user.toJSON()
+        user.license = !!license;
+        res.status(200).send({ code:'OK', msg:'Login succeed', data: user })
+      })
+    } else {
+      res.status(200).send({ code:'OK', msg:'Incorrect login or password' })
+    }
+  });
+}
+
+exports.login = function(credentials, callbackFn) {
+  User.findOne({ name: credentials.username }, (err, user) => {
+    if(err) callbackFn(err);
+    if(user && user.validPassword(credentials.password)) {
+      callbackFn(null,user);
     }
     else {
-      tryAgainForm(form, res);
+      callbackFn(null,null);
     }
   })
 };
 
-exports.login = function(user, req, res) {
+exports.signInUser = function(user, req, res) {
   req.session.uid = user._id;
   res.redirect('/');
 };
@@ -50,3 +78,7 @@ function tryAgainForm(form, res) {
   }
   template.render(viewBag, res);
 };
+
+function internalServerApiError(res) {
+  res.status(500).send({ code: 'ERROR', msg:'Login failed due to server problem.' });
+}

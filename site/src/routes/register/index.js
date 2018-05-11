@@ -2,7 +2,7 @@ const template = require('./template.marko');
 const account = require('../login/index');
 const User = require('../../lib/models/user');
 
-exports.form = function(req,res) {
+exports.form = function(req, res) {
   if(req.user) {
     res.redirect('/');
     return;
@@ -13,7 +13,7 @@ exports.form = function(req,res) {
   template.render(viewBag, res);
 };
 
-exports.submit = function(req,res) {
+exports.submit = function(req, res) {
   const form = req.body;
   const newUser = new User({
     name: form.name,
@@ -25,7 +25,7 @@ exports.submit = function(req,res) {
       tryAgainForm(form, err._message, res);
       return;
     }
-    account.login(newUser, req, res)
+    account.signInUser(newUser, req, res)
   })
 }
 

@@ -8,8 +8,11 @@ module.exports = function(req, res, next) {
   User.findById(id, (err, user) => {
     
     if(err) return next(err);
-    
-    req.user = res.locals.user = user;
+    user.getLicense((err, license) => {
+      if(err) return next(err);
+      user.license = license;
+      req.user = res.locals.user = user;
+    })
     next();
   })
 }

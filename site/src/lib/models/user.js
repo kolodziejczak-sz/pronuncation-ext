@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
 const crypto = require('crypto');
+const License = require('./license');
 
 const UserSchema = new mongoose.Schema({
   name: { 
@@ -34,6 +35,14 @@ UserSchema.methods.validPassword = function(password) {
   const hash = crypto.pbkdf2Sync(password, this.salt, 10000, 512, 'sha512').toString('hex');
   return this.hash === hash;
 };
+
+UserSchema.methods.getLicense = function(callback) {
+  License
+    .find({ 'userId': this._id })
+    .sort({ "date_time" : -1 })
+    .limit(1)
+    .exec(callback)
+}
 
 UserSchema.methods.toJSON = function(){
   return {

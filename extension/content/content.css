@@ -105,13 +105,13 @@ body.ext-pronun-selection-mode *::selection {
   align-items: center;
 }
 
-.ext-pronun-notification-bar.info {
+.ext-pronun-notification-bar.ext-pronun-info {
   color: #004085;
   background-color: #cce5ff;
   border-bottom: 1px solid #b8daff;
 }
 
-.ext-pronun-notification-bar.alert {
+.ext-pronun-notification-bar.ext-pronun-alert {
   color: #721c24;
   background-color: #f8d7da;
   border-bottom: 1px solid #f5c6cb;

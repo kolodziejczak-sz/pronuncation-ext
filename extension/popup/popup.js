@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
         infoEl = document.getElementById('info'),
         triggerEl = document.getElementById('trigger');
 
-  let accountType = 0;
+  let accountType = 1;
 
   getCurrentTab(tab => initComponents(tab));
 
