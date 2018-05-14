@@ -40,18 +40,26 @@ h1 {
   position: relative;
   color: #fff;
   padding: 5px;
-  border-bottom: 1px solid #000;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+}
+
+#bar:empty {
+  display: none;
 }
 
 #bar.success {
-  color: #28a745;
+  background: #28a745;
+  border-bottom-color: #1a5f2a;
 }
 
 #bar.danger {
-  color: #dc3545;
+  background: #dc3545;
+  border-bottom-color: #d54451;
 }
 
-#bar::before {
+/* #bar.success::before,
+#bar.danger::before{
   color: inherit;
   width: 18px;
   height: 18px;
@@ -66,15 +74,27 @@ h1 {
 
 #bar.danger::before {
   background-image: url("./http.svg");
-}
+} */
+
 
 #login-form, #logout-form {
   display: none;
+  padding: 5px;
+  box-sizing: border-box;
+  height: 36px;
+}
+
+form > button {
+  float: right;
 }
 
 p {
-  padding: 5px;
+  margin: 0;
+  display: inline;
+}
 
+input {
+  width: 120px;
 }
 
 #bar-user {

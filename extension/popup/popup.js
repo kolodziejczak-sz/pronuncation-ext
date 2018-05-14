@@ -50,13 +50,13 @@ function postData(url, data) {
 document.addEventListener('DOMContentLoaded', () => {
 
   const barEl = document.getElementById('bar'),
-        infoEl = document.getElementById('info'),
         triggerEl = document.getElementById('trigger'),
         loginFormEl = document.getElementById('login-form'),
         logoutFormEl = document.getElementById('logout-form'),
         usernameEl = document.getElementById('username'),
         passwordEl = document.getElementById('password'),
         logoutEl = document.getElementById('logout'),
+        loginEl = document.getElementById('login'),
         barUserEl = document.getElementById('bar-user'),
         barLicenseEl = document.getElementById('bar-license');
 
@@ -66,41 +66,44 @@ document.addEventListener('DOMContentLoaded', () => {
   getCurrentTab(tab => initComponents(tab));
 
   function initComponents(tab) {
+    const isEncrypted = isHttps(tab.url);
+    if(isEncrypted)
+      alert(strings.messages.secure, 'success');
+    else
+      alert(string.messages.unsecure, 'danger');
+
     getFromStorage(credentialsKey, (user) => {
       if(user) {
         const isSessionExpired = (new Date().getTime() - user.expirationTime) > 0;
-        user = isSessionExpired ? null : user;
+        if(isSessionExpired)
+          user = null;
+        else
+          isPremium = !!user.license;
+      } else {
+        alert(strings.messages.login,'danger')
       }
-      const isEncrypted = isHttps(tab.url);
-      const isLoggedIn = !!user;
-      isPremium = !!user && !!user.license;
       initLogginState(user);
-      initTriggerEl(tab, isEncrypted, isLoggedIn);
-      initBarEl(isEncrypted);
+      initTriggerEl(tab, isEncrypted, !!user);
     });
   }
 
   function initLogginState(user) {
     if(user) {
-      const isPremium = !!user.license;
       logoutEl.onclick = logout;
       barUserEl.textContent = user.name;
-      barLicenseEl.textContent = strings.account[isPremium ? 1 : 0]
+      barLicenseEl.textContent = strings.account[user.license ? 1 : 0]
       logoutFormEl.style.display = 'block';
-      return;
+      loginFormEl.style.display = 'none';
     } else {
-      loginFormEl.style.display = 'block';    
+      loginEl.onclick = login;
+      loginFormEl.style.display = 'block';
+      logoutFormEl.style.display = 'none';
     }
   }
 
   function initTriggerEl(tab, isHttps, isLogged) {
-    if(!isHttps) {
-      triggerEl.disabled = true;
-    }
-    if(!isLogged) {
-      triggerAsLogin();
-      return;
-    }
+    triggerEl.disabled = (!isHttps || !isLogged);
+    
     getContentScriptStatus(tab, isContentOpen => {
       if(isContentOpen) {
         triggerAsStop(tab);
@@ -110,7 +113,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function login() {
+  function login(event) {
+    event.preventDefault();
     const username = usernameEl.value;
     const password = passwordEl.value;
     if(!username || !password) return;
@@ -119,22 +123,23 @@ document.addEventListener('DOMContentLoaded', () => {
       password: password
     })
     .then(res => {
+      clearAlert();
       const user = res.data;
-      setToStorage(credentialsKey, user);
-      getCurrentTab(initComponents);
+      if(user) {
+        setToStorage(credentialsKey, user);
+        getCurrentTab(initComponents);
+      } else {
+        alert(strings.messages.login401, 'danger');
+      }
     }, err => {
-      console.log(err);
+      alert(strings.messages.login500, 'danger');
     });
   }
 
-  function logout() {
+  function logout(event) {
+    event.preventDefault();
     setToStorage(credentialsKey, null);
     getCurrentTab(initComponents);
-  }
-
-  function triggerAsLogin() {
-    triggerEl.textContent = strings.triggerEl.login;
-    triggerEl.onclick = login;
   }
 
   function triggerAsStop(tab) {
@@ -153,11 +158,14 @@ document.addEventListener('DOMContentLoaded', () => {
     } 
   }
 
-  function initBarEl(isHttps) {
-    const key = isHttps ? 'success' : 'danger';
 
-    barEl.classList.add(key);
-    infoEl.textContent = strings.infoEl[key];
+  function alert(text, type) {
+    barEl.classList = type;
+    barEl.textContent = text;
+  }
+
+  function clearAlert() {
+    alert('');
   }
 
   const strings = {
@@ -165,14 +173,16 @@ document.addEventListener('DOMContentLoaded', () => {
       0: 'Free',
       1: 'Premium'
     },
-    infoEl: {
-      success: 'Your connection is encrypted.',
-      danger: 'Your connection is not encrypted.'
+    messages: {
+      login: 'Login to start use extension',
+      login500: 'Login failed due to server error.',
+      login401: 'Incorrect username or password.',
+      unsecure: 'Your connection is not encrypted.',
+      secure: 'Your connection is encrypted.'
     },
     triggerEl: {
       stop: 'Stop',
-      start: 'Try it',
-      login: 'Login in'
+      start: 'Try it'
     }
   };
 });

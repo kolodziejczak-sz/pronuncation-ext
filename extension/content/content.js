@@ -3,6 +3,7 @@ const unreadClassName = cssPrefix + 'unread';
 const markClassName = cssPrefix + 'mark';
 const activeClassName = 'active';
 const remoteUrl = 'https://localhost:4200/api/session-save';
+const freeAccountLimit = 750;
 
 const speechRecognitionErrorMessages = {
   'no-speech': 'No speech was detected. You may need to adjust your microphone settings.',
@@ -18,7 +19,8 @@ const guiStrings = {
   sessionSaveSucced:'Session saved',
   sessionSaveFailed:'Saving session failed. Try again later.',
   newBtn:'New',
-  saveBtn:'Save'
+  saveBtn:'Save',
+  freeAccountLimit:'Free users can read only' + freeAccountLimit + ' characters at once. Try premium now!'
 }
 
 const rootId = cssPrefix + 'root';
@@ -243,6 +245,10 @@ function createNotificationBar() {
 }
 
 function createTextToRead(text) {
+  if(!stats) {
+    text = text.slice(0,freeAccountLimit);
+    alert(guiStrings.freeAccountLimit);
+  }
   textContainerEl = createElement('div', 'article');
   textContainerEl.innerHTML = parseTextToHTML(text, unreadClassName);
 
@@ -428,13 +434,11 @@ function toggleRecognition(tooltipTextEl) {
 }
 
 recognition.onstart = function() {
-  console.log('recognition onstart');
   recognitionEl.classList.add(activeClassName);
   state.recording = true;
 };
 
 recognition.onend = function() {
-  console.log('recognition onend');
   recognitionEl.classList.remove(activeClassName);
   state.recording = false;
 };
@@ -559,7 +563,6 @@ function clearNotification() {
   notificationBarEl.innerHTML = '';
 }
 
-
 function saveSession() {
   if(stats) {
     const btnRegex = /<button(.*)button>/;
@@ -571,18 +574,18 @@ function saveSession() {
 }
 
 function postSession(stats) {
-  const req = new XMLHttpRequest();
-  req.onreadystatechange = () => {
-    if (this.readyState === 4) {
-      if(this.status === 200) {
-        alert(guiStrings.sessionSaveSucced, 'info');
-      } else {
-        alert(guiStrings.sessionSaveFailed);
-      }
-    }
-  };
-  req.open('POST', remoteUrl, true);
-  req.setRequestHeader('Content-type', 'application/json');
-  req.send(JSON.stringify(stats));
+  postData(remoteUrl, stats).then(
+    res => alert(guiStrings.sessionSaveSucced, 'info'),
+    err => alert(guiStrings.sessionSaveFailed)
+  );
 }
 
+function postData(url, data) {
+  return fetch(url, {
+    body: JSON.stringify(data), // must match 'Content-Type' header
+    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+    headers: { 'content-type': 'application/json' },
+    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+  })
+  .then(response => response.json()) // parses response to JSON
+}
