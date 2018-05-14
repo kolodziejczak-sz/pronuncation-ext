@@ -67,3 +67,21 @@ h1 {
 #bar.danger::before {
   background-image: url("./http.svg");
 }
+
+#login-form, #logout-form {
+  display: none;
+}
+
+p {
+  padding: 5px;
+
+}
+
+#bar-user {
+  font-style: italic;
+}
+
+#bar-license {
+  text-transform: uppercase;
+  font-weight: bold;
+}

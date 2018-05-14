@@ -30,6 +30,7 @@ exports.submit = function(req, res) {
 };
 
 exports.apiLogin = function(req, res) {
+  console.log(req.body);
   const credentials = req.body;
   exports.login(credentials, (err, user) => {
     if(err) internalServerApiError(res);
@@ -37,7 +38,10 @@ exports.apiLogin = function(req, res) {
       user.getLicense((err, license) => {
         if(err) internalServerApiError(res);
         user = user.toJSON()
-        user.license = !!license;
+        if(license && !license.isExpired()) {
+          user.license = license._id;
+          user.expirationTime = addHoursFromNow(12);
+        }
         res.status(200).send({ code:'OK', msg:'Login succeed', data: user })
       })
     } else {
@@ -79,6 +83,14 @@ function tryAgainForm(form, res) {
   template.render(viewBag, res);
 };
 
+function addHoursFromNow(hoursCount) {
+  return new Date().getTime() + hoursToMs(hoursCount);
+}
+
+function hoursToMs(hoursCount) {
+  return hoursCount * 60 * 60 * 1000;
+};
+
 function internalServerApiError(res) {
   res.status(500).send({ code: 'ERROR', msg:'Login failed due to server problem.' });
-}
+};

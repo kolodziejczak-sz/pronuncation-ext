@@ -56,7 +56,9 @@ app.post('/register', register.submit);
 app.get('/login', login.form);
 app.post('/login', login.submit);
 app.get('/logout', login.logout);
-app.post('/api/session-save', (req,res) => {
+app.post('/api/login', login.apiLogin);
+
+app.post('/api/session-save', (req, res) => {
   console.log(req.body);
   res.status(200).send({msg:"OK MAN WE GOT IT", data:req.body})
 });
