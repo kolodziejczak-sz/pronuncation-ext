@@ -38,9 +38,8 @@ UserSchema.methods.validPassword = function(password) {
 
 UserSchema.methods.getLicense = function(callback) {
   License
-    .find({ 'userId': this._id })
+    .findOne({ 'userId': this._id })
     .sort({ "date_time" : -1 })
-    .limit(1)
     .exec(callback)
 }
 
