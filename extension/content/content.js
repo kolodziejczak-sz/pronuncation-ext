@@ -2,7 +2,7 @@ const cssPrefix = 'ext-pronun-';
 const unreadClassName = cssPrefix + 'unread';
 const markClassName = cssPrefix + 'mark';
 const activeClassName = 'active';
-const remoteUrl = 'https://localhost:4200/api/session-save';
+const remoteUrl = 'https://localhost:4200/api/';
 const freeAccountLimit = 750;
 
 const speechRecognitionErrorMessages = {
@@ -46,11 +46,9 @@ let state = {
   readerOpen: false,
   recording: false,
 }
-
-let isPremium = false;
-
+let user = null;
+let license = null;
 let stats = null;
-
 let voices = null;
 
 const recognition = new webkitSpeechRecognition();
@@ -66,7 +64,8 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
       res(state.isOpened);
       break;
     case 'open':
-      isPremium = req.account === 1;
+      user = req.user;
+      license = !!req.user.license;
       openSelf();
       res(true);
       break;
@@ -195,11 +194,10 @@ function openReader(text) {
 }
 
 function createReader(text) {
-  if(isPremium) {
+  if(license) {
     stats = {
       pageURL: window.location.href,
-      startTime: new Date(),
-      saveTime: null,
+      startTime: new Date().getTime(),
       synthesis: [],
       interimResults: [],
       finalResults: [],
@@ -231,7 +229,7 @@ function createMenuBar() {
   });
 
   menuBarEl.appendChild(redoEl);
-  if(stats) {
+  if(license) {
     const saveEl = createBtnWithText(guiStrings.saveBtn,'save', saveSession.bind(this));
     menuBarEl.appendChild(saveEl);
   }
@@ -245,7 +243,7 @@ function createNotificationBar() {
 }
 
 function createTextToRead(text) {
-  if(!stats) {
+  if(!license) {
     text = text.slice(0,freeAccountLimit);
     alert(guiStrings.freeAccountLimit);
   }
@@ -473,7 +471,7 @@ recognition.onerror = function(event) {
 function onInterimTranscript(text) {
   addToInterimTranscriptions(text);
   findAndMark(text);
-  if(stats) {
+  if(license && stats) {
     stats.interimResults.push(text);
   }
 }
@@ -481,7 +479,7 @@ function onInterimTranscript(text) {
 function onFinalTranscript(text) {
   addToFinalTranscriptions(text);
   findAndMark(text);
-  if(stats) {
+  if(license && stats) {
     stats.finalResults.push(text);
   }
 }
@@ -530,7 +528,7 @@ function synthStart() {
   utterThis.onstart = onSynthStart;
   utterThis.onend = onSynthStop;
   synth.speak(utterThis);
-  if(stats) {
+  if(license && stats) {
     stats.synthesis.push(text);
   }
 }
@@ -564,24 +562,26 @@ function clearNotification() {
 }
 
 function saveSession() {
-  if(stats) {
+  if(license && stats) {
     const btnRegex = /<button(.*)button>/;
     const htmlWithoutButton = textContainerEl.innerHTML.replace(btnRegex,'');
     stats.innerHTML = htmlWithoutButton;
-    stats.saveTime = new Date();
     postSession(stats);
   }
 }
 
 function postSession(stats) {
-  postData(remoteUrl, stats).then(
-    res => alert(guiStrings.sessionSaveSucced, 'info'),
-    err => alert(guiStrings.sessionSaveFailed)
+  postData('session', stats).then(
+    res => {
+      alert(res.msg || guiStrings.sessionSaveSucced, 'info') 
+    },
+    err => alert(res.msg || guiStrings.sessionSaveFailed)
   );
 }
 
 function postData(url, data) {
-  return fetch(url, {
+  data.user = user;
+  return fetch(remoteUrl + url, {
     body: JSON.stringify(data), // must match 'Content-Type' header
     cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
     headers: { 'content-type': 'application/json' },

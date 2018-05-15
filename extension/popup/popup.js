@@ -1,3 +1,5 @@
+const remoteUrl = 'https://localhost:4200/';
+
 function setToStorage(key, value) {
   let obj = {};
   obj[key]=value;
@@ -24,8 +26,8 @@ function closeContentScript(tab, callback) {
   sendToTab(tab, { cmd: 'close' }, callback);
 }
 
-function openContentScript(tab, account, callback) {
-  sendToTab(tab, { cmd: 'open', account: account }, callback);
+function openContentScript(tab, license, callback) {
+  sendToTab(tab, { cmd: 'open', license: license }, callback);
 }
 
 function getContentScriptStatus(tab, callback) {
@@ -38,7 +40,7 @@ function isHttps(url) {
 
 function postData(url, data) {
   // Default options are marked with *
-  return fetch(url, {
+  return fetch(remoteUrl + url, {
     body: JSON.stringify(data), // must match 'Content-Type' header
     cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
     headers: { 'content-type': 'application/json' },
@@ -61,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
         barLicenseEl = document.getElementById('bar-license');
 
   const credentialsKey = 'jsonwebtoken';
-  let isPremium = false;
+  let license = null;
 
   getCurrentTab(tab => initComponents(tab));
 
@@ -70,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(isEncrypted)
       alert(strings.messages.secure, 'success');
     else
-      alert(string.messages.unsecure, 'danger');
+      alert(strings.messages.unsecure, 'danger');
 
     getFromStorage(credentialsKey, (user) => {
       if(user) {
@@ -78,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(isSessionExpired)
           user = null;
         else
-          isPremium = !!user.license;
+          license = user.license;
       } else {
         alert(strings.messages.login,'danger')
       }
@@ -91,6 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(user) {
       logoutEl.onclick = logout;
       barUserEl.textContent = user.name;
+      barUserEl.href= remoteUrl + 'profile/' + user.name;
       barLicenseEl.textContent = strings.account[user.license ? 1 : 0]
       logoutFormEl.style.display = 'block';
       loginFormEl.style.display = 'none';
@@ -118,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const username = usernameEl.value;
     const password = passwordEl.value;
     if(!username || !password) return;
-    postData('https://localhost:4200/api/login', {
+    postData('api/login', {
       username: username,
       password: password
     })
@@ -151,10 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
     triggerEl.textContent = strings.triggerEl.start;
 
     if(!triggerEl.disabled) {
-      triggerEl.onclick = openContentScript.bind(null,
-        tab,
-        isPremium,
-        () => window.close());
+      triggerEl.onclick = openContentScript.bind(null,tab,license,() => window.close());
     } 
   }
 
