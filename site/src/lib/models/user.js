@@ -45,6 +45,7 @@ UserSchema.methods.getLicense = function(callback) {
 
 UserSchema.methods.toJSON = function(){
   return {
+    _id: this._id,
     name: this.name,
     email: this.email
   };

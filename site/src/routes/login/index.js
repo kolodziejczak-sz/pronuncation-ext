@@ -36,7 +36,6 @@ exports.apiLogin = function(req, res) {
     if(err) internalServerApiError(res);
     if(user) {
       user.getLicense((err, license) => {
-        console.log("getLicense", license)
         if(err) internalServerApiError(res);
         user = user.toJSON()
         if(license && !license.isExpired()) {

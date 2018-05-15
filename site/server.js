@@ -31,7 +31,7 @@ require('lasso').configure({
 
 const home = require('./src/routes/home');
 const login = require('./src/routes/login');
-const profile = require('./src/routes/home');
+const profile = require('./src/routes/profile');
 const pricing = require('./src/routes/pricing');
 const register = require('./src/routes/register');
 
@@ -51,17 +51,14 @@ app.use(user);
 
 app.get('/', home);
 app.get('/pricing', pricing);
+app.post('/profile', profile.site);
 app.get('/register', register.form);
 app.post('/register', register.submit);
 app.get('/login', login.form);
 app.post('/login', login.submit);
 app.get('/logout', login.logout);
 app.post('/api/login', login.apiLogin);
-
-app.post('/api/session-save', (req, res) => {
-  console.log(req.body);
-  res.status(200).send({msg:"OK MAN WE GOT IT", data:req.body})
-});
+app.post('/api/session', profile.session);
 
 
 https.createServer(certOptions, app).listen(port, function() {
