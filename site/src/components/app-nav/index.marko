@@ -37,9 +37,9 @@ style {
     </li>
   </ul>
   <ul.links.right>
-    <if(input.user)>
+    <if(data.user)>
       <li class="${data.link==='/profile' && 'active'}">
-        <a href="/profile">${input.user.name}</a>
+        <a href="/profile">${data.user.name}</a>
       </li>
       <li><a href="/logout">Log out</a></li>
     </if>

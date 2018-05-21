@@ -3,10 +3,15 @@ const User = require('../../lib/models/user');
 const License = require('../../lib/models/license');
 const Session = require('../../lib/models/session');
 
-exports.site = function(req,res) {
+exports.site = function(req, res) {
+  const user = (res.locals.user || req.user);
+  if(!user) {
+    res.redirect('/');
+    return;
+  }
   const viewBag = {
     link: '/profile',
-    user: res.locals.user || req.user
+    user: user
   }
   template.render(viewBag, res);
 };
@@ -25,12 +30,12 @@ exports.session = function(req, res) {
     if(license.isExpired()) {
       return res.status(401).send({ msg:"License is expired." });
     }
-    const session = new Session({}); //TODO SESSION DETAILS
+    const session = new Session(req.session);
     session.save((err) => {
       if(err) {
         return res.status(500).send({ msg:"Saving session failed due to internal server error." });
       }
-      return res.status(200).send({ msg:"Saving session succeed.", data: {url: session._id } })
+      return res.status(200).send({ msg:"Saving session succeed.", data: { id: session._id } })
     });
   });
 };

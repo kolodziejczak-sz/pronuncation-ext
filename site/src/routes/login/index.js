@@ -10,7 +10,7 @@ exports.form = function(req, res) {
       if(err) throw err;
       const viewBag = {
         link: '/login',
-        users: users
+        user: null
       }
       template.render(viewBag, res);
     })
@@ -37,7 +37,7 @@ exports.apiLogin = function(req, res) {
     if(user) {
       user.getLicense((err, license) => {
         if(err) internalServerApiError(res);
-        user = user.toJSON()
+        user = user.toJSON();
         if(license && !license.isExpired()) {
           user.license = license._id;
           user.expirationTime = addHoursFromNow(12);

@@ -8,7 +8,8 @@ exports.form = function(req, res) {
     return;
   }
   const viewBag = {
-    link: '/register'
+    link: '/register',
+    user: null
   }
   template.render(viewBag, res);
 };

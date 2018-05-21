@@ -196,6 +196,7 @@ function openReader(text) {
 function createReader(text) {
   if(license) {
     stats = {
+      title: document.title,
       pageURL: window.location.href,
       startTime: new Date().getTime(),
       synthesis: [],
@@ -579,13 +580,15 @@ function postSession(stats) {
   );
 }
 
-function postData(url, data) {
-  data.user = user;
+function postData(url, session) {
+  const body = {};
+  body.user = user;
+  body.session = session;
   return fetch(remoteUrl + url, {
-    body: JSON.stringify(data), // must match 'Content-Type' header
-    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+    body: JSON.stringify(body),
+    cache: 'no-cache',
     headers: { 'content-type': 'application/json' },
-    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+    method: 'POST'
   })
-  .then(response => response.json()) // parses response to JSON
+  .then(response => response.json())
 }

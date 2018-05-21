@@ -6,13 +6,13 @@ module.exports = function(req, res, next) {
   if(!id) return next();
 
   User.findById(id, (err, user) => {
-    
+
     if(err) return next(err);
-    user.getLicense((err, license) => {
+    user.getCurrLicense((err, license) => {
       if(err) return next(err);
       user.license = license;
-      req.user = res.locals.user = user;
     })
+    req.user = res.locals.user = user;
     next();
   })
 }

@@ -36,11 +36,27 @@ UserSchema.methods.validPassword = function(password) {
   return this.hash === hash;
 };
 
-UserSchema.methods.getLicense = function(callback) {
-  License
-    .findOne({ 'userId': this._id })
+UserSchema.methods.getLicenses = function(callback) {
+  License.find({ 'userId': this._id })
     .sort({ "date_time" : -1 })
-    .exec(callback)
+    .exec((err, licenses) => {
+      if(err) throw err;
+      callback(licenses);
+    })
+}
+
+UserSchema.methods.getCurrLicense = function(callback) {
+  License.findOne({ 'userId': this._id })
+    .sort({ "date_time" : -1 })
+    .exec((err, license) => {
+      if(err) throw err;
+
+      if(license.isExpired()) {
+        callback(null);
+      } else {
+        callback(license);
+      }
+    })
 }
 
 UserSchema.methods.toJSON = function(){
