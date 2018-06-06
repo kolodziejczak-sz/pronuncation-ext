@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const LicenseDuration = 30;
 
 const LicenseSchema = new Schema({
   userId: Schema.Types.ObjectId,
@@ -11,7 +12,8 @@ LicenseSchema.methods.isExpired = function(){
   return (now - this.expirationTime) > 0;
 };
 
-LicenseSchema.methods.setExpirationTime = function(days){
+LicenseSchema.methods.setExpirationTime = function(days) {
+  days = days || LicenseDuration;
   const now = new Date().getTime();
   this.expirationTime = now + daysToMs(days);
 };

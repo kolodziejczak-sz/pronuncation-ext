@@ -85,7 +85,8 @@ style {
         <li>No records about your session</li>
       </ul>
       <button.try>
-        <a href="/register">Register for free</a>
+        <a if(!input.user) href="/register">Register for free</a>
+        <span if(input.user)>In use</span>
       </button>
     </div>
   </div>
@@ -102,7 +103,8 @@ style {
         <li>Support via email</li>
       </ul>
       <button.try>
-        Get started
+        <a if(!input.user) href="/register">Get started</a>
+        <a if(input.user) href="/profile">Get started</a>
       </button>
     </div>
   </div>

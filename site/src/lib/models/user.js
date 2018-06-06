@@ -49,14 +49,19 @@ UserSchema.methods.getCurrLicense = function(callback) {
   License.findOne({ 'userId': this._id })
     .sort({ "date_time" : -1 })
     .exec((err, license) => {
-      if(err) throw err;
-
-      if(license.isExpired()) {
-        callback(null);
+      if(err) callback(err, null);
+      if(!license || license.isExpired()) {
+        callback(null, null);
       } else {
-        callback(license);
+        callback(null, license);
       }
     })
+}
+
+UserSchema.methods.newLicense = function() {
+  const license = new License({ userId: this._id });
+  license.setExpirationTime();
+  return license;
 }
 
 UserSchema.methods.toJSON = function(){

@@ -23,19 +23,41 @@ exports.session = function(req, res) {
   if(!licenseId) {
     return res.status(401).send({ msg:"No license key found." });
   } 
-  License.findById(licenseId, (license) => {
-    if(!license || (license.userId !== user._id)) {
+  License.findById(licenseId, (err, license) => {
+    if(err) {
+      return res.status(500).send({ msg:"Saving session failed due to internal server error." });
+    }
+    if(!license) {
+      return res.status(401).send({ msg:"License doesn't exists." });
+    }
+    if(String(license.userId) !== String(user._id)) {
       return res.status(401).send({ msg:"You are not owner of this license." });
     }
     if(license.isExpired()) {
       return res.status(401).send({ msg:"License is expired." });
     }
-    const session = new Session(req.session);
-    session.save((err) => {
+    const reqSession = req.body.session;
+
+    Session.findOneAndUpdate({ startTime: reqSession.startTime }, { $set: { 
+      synthesis: reqSession.synthesis,
+      interimResults: reqSession.interimResults,
+      finalResults: reqSession.finalResults,
+      innerHTML: reqSession.innerHTML
+    } }, (err, session) => {
       if(err) {
         return res.status(500).send({ msg:"Saving session failed due to internal server error." });
       }
-      return res.status(200).send({ msg:"Saving session succeed.", data: { id: session._id } })
-    });
+      if(!session){
+        session = new Session(reqSession);
+        session.save((err) => {
+          if(err) {
+            return res.status(500).send({ msg:"Saving session failed due to internal server error." });
+          }
+          return res.status(200).send({ msg:"Saving session succeed.", data: { id: session._id } })
+        });
+      } else {
+        return res.status(200).send({ msg:"Changes saved.", data: { id: session._id } })
+      }
+    })
   });
 };

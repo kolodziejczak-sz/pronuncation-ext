@@ -9,7 +9,7 @@ const SessionSchema = new Schema({
   synthesis: Array,
   interimResults: Array,
   finalResults: Array,
-  innerHTML: String,
+  innerHTML: String
 }, { timestamps: true });
 
 module.exports = mongoose.model('Session', SessionSchema);

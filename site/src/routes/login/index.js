@@ -30,12 +30,11 @@ exports.submit = function(req, res) {
 };
 
 exports.apiLogin = function(req, res) {
-  console.log(req.body);
   const credentials = req.body;
   exports.login(credentials, (err, user) => {
     if(err) internalServerApiError(res);
     if(user) {
-      user.getLicense((err, license) => {
+      user.getCurrLicense((err, license) => {
         if(err) internalServerApiError(res);
         user = user.toJSON();
         if(license && !license.isExpired()) {
