@@ -26,8 +26,8 @@ function closeContentScript(tab, callback) {
   sendToTab(tab, { cmd: 'close' }, callback);
 }
 
-function openContentScript(tab, license, callback) {
-  sendToTab(tab, { cmd: 'open', license: license }, callback);
+function openContentScript(tab, user, callback) {
+  sendToTab(tab, { cmd: 'open', user }, callback);
 }
 
 function getContentScriptStatus(tab, callback) {
@@ -41,12 +41,12 @@ function isHttps(url) {
 function postData(url, data) {
   // Default options are marked with *
   return fetch(remoteUrl + url, {
-    body: JSON.stringify(data), // must match 'Content-Type' header
-    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+    body: JSON.stringify(data),
+    cache: 'no-cache',
     headers: { 'content-type': 'application/json' },
-    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+    method: 'POST'
   })
-  .then(response => response.json()) // parses response to JSON
+  .then(response => response.json())
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
         barLicenseEl = document.getElementById('bar-license');
 
   const credentialsKey = 'jsonwebtoken';
-  let license = null;
+  let user = null;
 
   getCurrentTab(tab => initComponents(tab));
 
@@ -74,14 +74,12 @@ document.addEventListener('DOMContentLoaded', () => {
     else
       alert(strings.messages.unsecure, 'danger');
 
-    getFromStorage(credentialsKey, (user) => {
-      if(user) {
-        const isSessionExpired = (new Date().getTime() - user.expirationTime) > 0;
-        if(isSessionExpired)
-          user = null;
-        else
-          license = user.license;
-      } else {
+    getFromStorage(credentialsKey, (userFromStorage) => {
+      if(userFromStorage) {
+        const isSessionExpired = (new Date().getTime() - userFromStorage.expirationTime) > 0;
+        user = isSessionExpired ? null : userFromStorage;
+      }
+      else {
         alert(strings.messages.login,'danger')
       }
       initLogginState(user);
@@ -154,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
     triggerEl.textContent = strings.triggerEl.start;
 
     if(!triggerEl.disabled) {
-      triggerEl.onclick = openContentScript.bind(null,tab,license,() => window.close());
+      triggerEl.onclick = openContentScript.bind(null,tab,user,() => window.close());
     } 
   }
 

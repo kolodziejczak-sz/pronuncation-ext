@@ -1,0 +1,93 @@
+class {
+
+  onCreate(input) {
+    this.state = {
+      currentView: 0,
+      views: [ 
+        { key: 'home', icon: 'dashboard' },
+        { key: 'sessions', icon: 'weekend' },
+        { key: 'licenses', icon: 'credit_card' },
+        { key: 'account', icon: 'account_circle' }
+      ]
+    }
+  }
+
+  changeViewHandler(idx) {
+    let view = this.state.views[this.state.currentView];
+    let component = this.getComponent(view.key);
+    if(component) {
+      component.destroy()
+    };
+    this.state.currentView = idx;
+  }
+}
+
+style {
+  .profile {
+    display: flex;
+    width: 100%;
+    height: calc(100% - 45px);
+  }
+
+  .profile > .content {
+    flex: 1;
+  }
+
+  .profile >  .sidebar {
+    display: flex;
+    flex-direction: column;
+    background: #f0f0f0;
+  }
+
+  .sidebar > button {
+    text-transform: uppercase;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    outline: 0;
+    border: 0;
+    background: transparent;
+    padding: 15px 100px 15px 20px;
+    color: #767676;
+    cursor: pointer;
+  }
+
+  .sidebar > button >  .material-icons { margin-right: 5px; }
+  .sidebar > button.selected,
+  .sidebar > button:hover { color: #2a2828; }
+  .sidebar > button.selected >  .material-icons { color: #f77676; }
+}
+
+$ let views = state.views;
+
+<main.profile>
+  <div.sidebar>
+    <for(view in views | status-var=loop)>
+      $ let idx = loop.getIndex();
+      <button class=(idx===state.currentView)&&'selected'
+              on-click('changeViewHandler', idx)>
+        <span.material-icons>${view.icon}</span>
+        <span>${view.key}</span>
+      </button>
+    </for>
+  </div>
+  <div.content>
+    <profile-home if(state.currentView===0)
+                  key='home'
+                  user=input.user
+                  sessions=input.sessions
+                  licenses=input.licenses
+                  on-selected('changeViewHandler')/>
+    <profile-sessions if(state.currentView===1)
+                      key='sessions'
+                      user=input.user
+                      sessions=input.sessions/>
+    <profile-licenses if(state.currentView===2)
+                      key='licenses'
+                      user=input.user
+                      licenses=input.licenses/>
+    <profile-account if(state.currentView===3)
+                     key='account'
+                     user=input.user/>
+  </div>
+</main>

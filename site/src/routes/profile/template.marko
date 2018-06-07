@@ -5,10 +5,14 @@
     <title>Profile - Pronouncation ext</title>
     <link rel="stylesheet" href="../../../static/reset.css">
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <lasso-head/>
   </head>
   <body>
     <app-nav user=data.user link=data.link/>
+    <profile-root user=data.user 
+                  sessions=data.sessions 
+                  licenses=data.licenses/>
     <lasso-body/>
     <browser-refresh enabled="true"/>
   </body>

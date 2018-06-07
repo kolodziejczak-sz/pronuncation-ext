@@ -1,0 +1,18 @@
+class {}
+style {
+  .account {
+    font-size: 24px;
+    color: #767676;
+  }
+  .account > .email {
+    font-size: 18px;
+    color: #999;
+  }
+
+  .account > .hello { color: #690; }
+}
+
+$ let user = input.user;
+<div.account>
+  <span.hello>Hello</span> <span.name>${user.name}!</span> <span.email>(${user.email})</span>
+</div>

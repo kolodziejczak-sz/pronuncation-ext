@@ -9,11 +9,22 @@ exports.site = function(req, res) {
     res.redirect('/');
     return;
   }
-  const viewBag = {
-    link: '/profile',
-    user: user
-  }
-  template.render(viewBag, res);
+
+  Promise
+  .all([user.getLicenses(), user.getSessions()])
+  .then((values) => {
+    const licenses = values[0] || [];
+    const sessions = (values[1] || []).map(s => s.calcCommon());
+    console.log(sessions);
+    const viewBag = {
+      link: '/profile', user, licenses, sessions
+    }
+    template.render(viewBag, res);
+  })
+  .catch((err) => {
+    console.log(err);
+    res.redirect('/500');
+  })
 };
 
 // JSON API
@@ -48,7 +59,7 @@ exports.session = function(req, res) {
         return res.status(500).send({ msg:"Saving session failed due to internal server error." });
       }
       if(!session){
-        session = new Session(reqSession);
+        session = user.newSession(reqSession);
         session.save((err) => {
           if(err) {
             return res.status(500).send({ msg:"Saving session failed due to internal server error." });

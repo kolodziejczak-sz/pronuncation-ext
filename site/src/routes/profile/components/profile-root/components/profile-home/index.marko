@@ -1,0 +1,21 @@
+class {
+  goToLicense() {
+    this.emit('selected', 2);
+  }
+}
+style {
+  .account {}
+  .license {}
+
+}
+$ let user = input.user;
+$ let sessions = input.sessions.slice(0, 4);
+$ let license = input.licenses[0];
+<account-intro user=user/>
+<div.grid>
+  <for(session in sessions)>
+    <session session=session/>
+  </for>
+  <license-intro license=license
+                on-triggered('goToLicense')/>
+</div>

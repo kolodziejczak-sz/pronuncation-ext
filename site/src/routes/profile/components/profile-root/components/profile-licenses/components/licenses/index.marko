@@ -1,0 +1,45 @@
+class {}
+style {
+  .licenses {
+      border-collapse: collapse;
+      width: 100%;
+      color: #767676;
+  }
+
+  .licenses th, .licenses td  {
+      border: 1px solid #ddd;
+      padding: 8px;
+  }
+
+  .licenses th {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      text-align: left;
+      background-color: #f0f0f0   
+  }
+
+  .licenses tr:nth-child(even){ background-color: #fff8f8; }  
+
+  .licenses tr > td:not(:first-of-type) {
+    text-align: right;
+  }
+}
+
+<table.licenses>
+  <thead>
+    <tr>
+      <th></th>
+      <th>Date of purchase</th>
+      <th>Expiration time</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr for(license in input.licenses)>
+      $ let expTime = new Date(license.expirationTime).toDateString();
+      $ let createdAt = new Date(license.createdAt).toDateString();
+      <td>PREMIUM</td>
+      <td>${createdAt}</td>
+      <td>${expTime}</td>
+    </tr>
+  </tbody>
+</table>

@@ -1,0 +1,14 @@
+class {}
+style {
+  .licenses {
+    margin-top: 20px;
+  }
+}
+$ let licenses = input.licenses;
+$ let lastOne = licenses[0];
+$ let now = new Date().getTime();
+$ let isExpired = (now - lastOne.expirationTime) > 0;
+
+<license-intro license=isExpired?null:lastOne/>
+<licenses licenses=licenses/>
+

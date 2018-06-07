@@ -1,0 +1,64 @@
+class {
+  triggerClickHandler() {
+    this.emit('triggered');
+  }
+}
+style {
+  .license {
+    color: #767676;
+    text-align: center;
+  }
+
+  .license > h2 {
+    color: #f77676;
+    margin: 10px 0;
+    letter-spacing: 2px;
+    font-weight: bold;
+  }
+
+  .license > p {
+    border-top: 1px solid #efefef;
+    border-bottom: 1px solid #efefef;
+    margin-bottom: 21px;
+    padding: 15px 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    text-align: left;
+  }
+
+  .license > button {
+    background: #f77676;
+    color: #fff;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 8px 30px;
+    border: 0;
+    cursor: pointer;
+    outline: 0;
+  }
+
+}
+<div.license>
+  $ let license = input.license;
+  <if(!license)>
+    <h2>FREE</h2>
+    <p>
+      Currently you're using application as Free user. 
+      In this version you can't save session and browse through saved snippets.
+      Support authors of the project and buy premium account whenever you want to full-use potential of extension.
+    </p>
+    <button on-click('triggerClickHandler')>GET PREMIUM</button>
+  </if>
+  <else>
+    $ let expTime = new Date(license.expirationTime).toDateString();
+    $ let createdAt = new Date(license.createdAt).toDateString();
+    <h2>PREMIUM</h2>
+    <p>
+      You're premium member since ${createdAt}! 
+      Thanks for your support and have fun playing with full-potential extension!
+      Your PREMIUM account is active till ${expTime}.
+    </p>
+    <button>THANK YOU :-)</button>
+  </else>
+</div>

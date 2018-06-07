@@ -20,7 +20,7 @@ const guiStrings = {
   sessionSaveFailed:'Saving session failed. Try again later.',
   newBtn:'New',
   saveBtn:'Save',
-  freeAccountLimit:'Free users can read only' + freeAccountLimit + ' characters at once. Try premium now!'
+  freeAccountLimit:'Free users can read only ' + freeAccountLimit + ' characters at once. Try premium now!'
 }
 
 const rootId = cssPrefix + 'root';
@@ -470,23 +470,24 @@ recognition.onerror = function(event) {
 };
 
 function onInterimTranscript(text) {
+  const words = text.trim().split(' ').map(word => word.toLowerCase());
   addToInterimTranscriptions(text);
-  findAndMark(text);
+  findAndMark(words);
   if(license && stats) {
-    stats.interimResults.push(text);
+    stats.interimResults = stats.interimResults.concat(words);
   }
 }
 
 function onFinalTranscript(text) {
+  const words = text.trim().split(' ').map(word => word.toLowerCase());
   addToFinalTranscriptions(text);
-  findAndMark(text);
+  findAndMark(words);
   if(license && stats) {
-    stats.finalResults.push(text);
+    stats.finalResults = stats.finalResults.concat(words);
   }
 }
 
-function findAndMark(text) {
-  const words = text.trim().split(' ').map(word => word.toUpperCase());
+function findAndMark(words) {
   
   words.forEach(word => {
     const el = [...textContainerEl.querySelectorAll('.' + unreadClassName)]
@@ -502,7 +503,7 @@ function findAndMark(text) {
 
 function normalizeText(text) {
   const punctChars = /[\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,\-.\/:;<=>?@\[\]^_`{|}~]/;
-  return text.replace(punctChars, '').toUpperCase();
+  return text.replace(punctChars, '').toLowerCase();
 }
 
 function toggleSynthesis(e) {

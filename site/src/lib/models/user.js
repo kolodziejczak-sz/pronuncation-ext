@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
 const crypto = require('crypto');
 const License = require('./license');
+const Session = require('./session');
 
 const UserSchema = new mongoose.Schema({
   name: { 
@@ -36,14 +37,17 @@ UserSchema.methods.validPassword = function(password) {
   return this.hash === hash;
 };
 
+UserSchema.methods.getSessions = function(callback) {
+  return Session.find({ 'userId': this._id })
+    .sort({ "createdAt" : -1 })
+    .exec();
+};
+
 UserSchema.methods.getLicenses = function(callback) {
-  License.find({ 'userId': this._id })
-    .sort({ "date_time" : -1 })
-    .exec((err, licenses) => {
-      if(err) throw err;
-      callback(licenses);
-    })
-}
+  return License.find({ 'userId': this._id })
+    .sort({ "createdAt" : -1 })
+    .exec();
+};
 
 UserSchema.methods.getCurrLicense = function(callback) {
   License.findOne({ 'userId': this._id })
@@ -62,9 +66,15 @@ UserSchema.methods.newLicense = function() {
   const license = new License({ userId: this._id });
   license.setExpirationTime();
   return license;
-}
+};
 
-UserSchema.methods.toJSON = function(){
+UserSchema.methods.newSession = function(session) {
+  session = new Session(session);
+  session.userId = this._id;
+  return session;
+};
+
+UserSchema.methods.toJSON = function() {
   return {
     _id: this._id,
     name: this.name,
