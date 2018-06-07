@@ -1,0 +1,245 @@
+class {
+  onCreate(input) {
+    this.state = {
+      session: input.session,
+      timeAgo: null,
+      duration: null,
+      percent: 0,
+      wordsCount: 0,
+      wordsMatch: 0,
+      wordsRecognized: input.session.finalResults.length,
+      wordsListened: input.session.synthesis.length,
+      difficultWords: this.getMostCommonWords(input.session.synthesis, 5, 1).join(', ')
+    }
+  }
+
+  onMount() {
+    let contentEl = this.getEl('content');
+    this.setContent(contentEl);
+    this.countWords(contentEl);
+    this.calcDurration();
+  }
+
+  countWords(el) {
+    this.state.wordsMatch = el.querySelectorAll('span.ext-pronun-mark').length;
+    this.state.wordsCount = el.querySelectorAll('span').length;
+    this.state.percent = Math.floor((this.state.wordsMatch/this.state.wordsCount)*100);
+  }
+
+  setContent(el) {
+    el.innerHTML = this.state.session.innerHTML;
+  }
+
+  calcDurration() {
+    let dateStart = moment(this.state.session.startTime);
+    let dateEnd = moment(this.state.session.createdAt);
+    this.state.timeAgo=dateStart.fromNow();
+
+    let duration = moment.duration(dateEnd.diff(dateStart));
+    this.state.duration=Math.floor(duration.asMinutes() + 1)+'min';
+  }
+
+  getMostCommonWords(words, top, minOccurences) {
+    const dict = this.createDict(words);
+    return Object.keys(dict)
+      .filter(key => dict[key] >= (minOccurences || 0))
+      .sort((a,b) => dict[b] - dict[a])
+      .slice(0, top);
+  }
+
+  createDict(words) {
+    return words.reduce((dict, word) => {
+      dict[word] = dict[word] ? dict[word]++ : 1;
+      return dict;
+    }, {});
+  }
+
+  handleDeleteSubmit(event) {
+    if(confirm("Are you sure u want to delete this session?")) {
+      return true;
+    } else {
+      event.preventDefault();
+    }
+  }
+}
+
+style {
+
+  .session {
+    color: #767676;
+    border: 1px solid #ccc;
+    margin-bottom: 40px;
+    margin-right: 20px;
+  }
+
+  .session > header {
+    background: #f0f0f0;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    cursor: initial;
+  }
+
+  .session > header > h2 { 
+    margin: 0 2px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    flex: 2;
+  }
+  .session > header > span {
+    color: #999;
+    border-left: 1px solid currentColor;
+    display: inline-block;
+    margin-left: 4px;
+    padding-left: 4px;
+    font-size: .8em;
+    font-style: italic;
+  }
+
+  .session > .footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background: #f9f9f9;
+  }
+
+  .session > .footer > .detail {
+    display: flex;
+    font-size: .8em;
+    align-items: center;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .session > .footer > .detail:first-of-type {
+    flex: 2;
+  }
+
+  .session > .footer > .detail:last-of-type {
+    flex: 1;
+    justify-content: flex-end;
+  }
+
+  .session > .footer > .detail > .material-icons { font-size: 20px; }
+  .session .content {
+    font-family: "open-sans",arial,sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    padding: 10px;
+    box-sizing: border-box;
+    height: 150px;
+    position: relative;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    overflow: auto;
+    border-bottom: 1px solid #ccc;
+  }
+  .ext-pronun-mark { color: #690; }
+
+  .session .main {
+    display: flex;
+  }
+
+  .session .main .content { flex: 1;}
+  .session .main .stats {
+    flex: 1;
+    padding: 20px;
+    background: #f0f0f0;
+    border-right: 1px solid #ccc;
+    box-sizing: border-box;
+    height: 150px;
+  }
+
+  .stats {
+    border-collapse: collapse;
+    width: 100%;
+    color: #767676;
+  }
+
+  .stats th, .stats td  {
+    border: 0;
+    padding: 10px;
+  }
+
+  .stats th {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      text-align: left;
+      background-color: #f0f0f0   
+  }
+
+  .stats tr:nth-child(even){ background-color: #f9f9f9; }  
+
+  .stats tr > td:not(:first-of-type) {
+    text-align: right;
+  }
+
+  .delete {
+    position: absolute;
+    top: -31px;
+    right: 0;
+  }
+
+  .delete > button {
+    height: 30px;
+    outline: 0;
+    border: 0;
+    color: #767676;
+    background: transparent;
+    cursor: pointer;
+    border-top-left-radius: 50%;
+    background: #f0f0f0;
+    display: flex;
+    border: 1px solid #ccc;
+    border-bottom: 0;
+    border-right: 0;
+  }
+
+  .delete > button > i {
+    font-size: 20px;
+  }
+}
+
+$ let session = input.session;
+$ let faviconBase = 'https://www.google.com/s2/favicons?domain=';
+
+<div.session>
+  <div.main>
+    <table.stats>
+      <tr> 
+        <td>Percent</td><td>${state.percent}% (${state.wordsMatch} / ${state.wordsCount})</td>
+      </tr>
+      <tr> 
+        <td>No. recognized words</td><td>${state.wordsRecognized}</td>
+      </tr>
+      <tr> 
+        <td>No. listened words</td><td>${state.wordsListened}</td>
+      </tr>
+      <tr> 
+        <td>Difficult words</td><td>${state.difficultWords}</td>
+      </tr>
+    </table>
+    <div.content key='content'></div>
+  </div>
+  <header>
+    <form.delete method="post" action="/session" on-submit('handleDeleteSubmit')>
+      <input name="id" value=session._id hidden/>
+      <button type="submit"><i.material-icons>delete</i></button>
+    </form>
+    <img src=faviconBase + session.pageURL/>
+    <h2>${session.title}</h2> <span>${state.timeAgo}</span>
+  </header>
+  <div.footer>
+    <div.detail>
+      <i.material-icons>link</i>
+      <a href=session.pageURL>${session.pageURL}</a>
+    </div>
+    <div.detail>
+      <i.material-icons>access_time</i>
+      <span>${state.duration}</span>
+    </div>
+  </div>
+</div>

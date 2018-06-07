@@ -52,6 +52,8 @@ app.use(user);
 app.get('/', home);
 app.get('/pricing', pricing);
 app.get('/profile', profile.site);
+app.get('/profile/:viewId', profile.site);
+app.post('/session', profile.deleteSession);
 app.get('/register', register.form);
 app.post('/register', register.submit);
 app.get('/login', login.form);

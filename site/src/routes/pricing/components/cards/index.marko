@@ -83,10 +83,11 @@ style {
       <ul.list>
         <li>Text limited to 750 characters</li>
         <li>No records about your session</li>
+        <li>Just register!</li>
       </ul>
       <button.try>
         <a if(!input.user) href="/register">Register for free</a>
-        <span if(input.user)>In use</span>
+        <span if(input.user)>You're logged in</span>
       </button>
     </div>
   </div>
@@ -104,7 +105,10 @@ style {
       </ul>
       <button.try>
         <a if(!input.user) href="/register">Get started</a>
-        <a if(input.user) href="/profile">Get started</a>
+        <if(input.user)>
+          <a if(!input.license) href="/profile/2">Get started</a>
+          <a if(input.license) href="/profile/2">In use</a>
+        </if>
       </button>
     </div>
   </div>

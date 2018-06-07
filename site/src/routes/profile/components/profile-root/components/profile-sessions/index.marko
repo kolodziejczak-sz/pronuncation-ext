@@ -1,2 +1,21 @@
-class {}
-style {}
+class {
+}
+style {
+  .sessions {
+    height: 100%;
+    overflow: auto;
+  }
+
+  .sessions-title {
+    font-family: "open-sans",arial,sans-serif;
+    font-size: 24px;
+    margin-bottom: 15px;
+    color: #767676;
+  }
+}
+
+$ let sessions = input.sessions;
+<h2.sessions-title>Sessions you saved</h2>
+<div.sessions>
+  <session-detail for(session in sessions) session=session/>
+</div>

@@ -2,6 +2,7 @@ const template = require('./template.marko');
 const User = require('../../lib/models/user');
 const License = require('../../lib/models/license');
 const Session = require('../../lib/models/session');
+const moment = require('moment');
 
 exports.site = function(req, res) {
   const user = (res.locals.user || req.user);
@@ -14,18 +15,33 @@ exports.site = function(req, res) {
   .all([user.getLicenses(), user.getSessions()])
   .then((values) => {
     const licenses = values[0] || [];
-    const sessions = (values[1] || []).map(s => s.calcCommon());
-    console.log(sessions);
-    const viewBag = {
-      link: '/profile', user, licenses, sessions
-    }
+    const sessions = (values[1] || []);
+    const viewBag = { 
+      link: '/profile',
+      view: req.params.viewId || 0,
+      user, licenses, sessions 
+    };
+    console.log("VIEW", viewBag.view)
     template.render(viewBag, res);
   })
   .catch((err) => {
     console.log(err);
-    res.redirect('/500');
+    res.redirect('/');
   })
 };
+
+exports.deleteSession = function(req, res) {
+  const id = req.body.id;
+  Session.findByIdAndRemove(id, (err) => {
+    if(err) {
+      return res.status(500).send({
+        msg: "Deleting session failed due to internal server error." 
+      });
+    }
+    res.redirect('/profile/1');
+  })
+} 
+
 
 // JSON API
 exports.session = function(req, res) {
@@ -48,27 +64,31 @@ exports.session = function(req, res) {
       return res.status(401).send({ msg:"License is expired." });
     }
     const reqSession = req.body.session;
-
-    Session.findOneAndUpdate({ startTime: reqSession.startTime }, { $set: { 
-      synthesis: reqSession.synthesis,
-      interimResults: reqSession.interimResults,
-      finalResults: reqSession.finalResults,
-      innerHTML: reqSession.innerHTML
-    } }, (err, session) => {
+    User.findById(user._id, (err, user) => {
       if(err) {
         return res.status(500).send({ msg:"Saving session failed due to internal server error." });
       }
-      if(!session){
-        session = user.newSession(reqSession);
-        session.save((err) => {
-          if(err) {
-            return res.status(500).send({ msg:"Saving session failed due to internal server error." });
-          }
-          return res.status(200).send({ msg:"Saving session succeed.", data: { id: session._id } })
-        });
-      } else {
-        return res.status(200).send({ msg:"Changes saved.", data: { id: session._id } })
-      }
-    })
+      Session.findOneAndUpdate({ startTime: reqSession.startTime }, { $set: { 
+        synthesis: reqSession.synthesis,
+        interimResults: reqSession.interimResults,
+        finalResults: reqSession.finalResults,
+        innerHTML: reqSession.innerHTML
+      } }, (err, session) => {
+        if(err) {
+          return res.status(500).send({ msg:"Saving session failed due to internal server error." });
+        }
+        if(!session){
+          session = user.newSession(reqSession);
+          session.save((err) => {
+            if(err) {
+              return res.status(500).send({ msg:"Saving session failed due to internal server error." });
+            }
+            return res.status(200).send({ msg:"Saving session succeed.", data: { id: session._id } })
+          });
+        } else {
+          return res.status(200).send({ msg:"Changes saved.", data: { id: session._id } })
+        }
+      })
+    });
   });
 };

@@ -1,34 +1,122 @@
 class {
   onCreate(input) {
     this.state = {
-      durarion: null
+      session: input.session,
+      timeAgo: null,
+      duration: null
     }
-    console.log(input);
   }
 
-  calcDurration(dateEnd, dateStart) {
-    let 
+  onMount() {
+    let contentEl = this.getEl('content');
+    contentEl.innerHTML = this.state.session.innerHTML;
+    this.calcDurration();
   }
 
+  calcDurration() {
+    let dateStart = moment(this.state.session.startTime);
+    let dateEnd = moment(this.state.session.createdAt);
+    this.state.timeAgo=dateStart.fromNow();
+
+    let duration = moment.duration(dateEnd.diff(dateStart));
+    this.state.duration=Math.floor(duration.asMinutes() + 1)+'min';
+  }
+
+  sessionClickHandler() {
+    this.emit('triggered');
+  }
 }
 
-style {}
+style {
+
+  .session {
+    color: #767676;
+    border: 1px solid #f0f0f0;
+  }
+
+  .session > header {
+    background: #f0f0f0;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .session > header > h2 { 
+    margin: 0 2px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    flex: 2;
+  }
+  .session > header > span {
+    color: #999;
+    border-left: 1px solid currentColor;
+    display: inline-block;
+    margin-left: 4px;
+    padding-left: 4px;
+    font-size: .8em;
+    font-style: italic;
+  }
+
+  .session > .footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background: #f9f9f9;
+  }
+
+  .session > .footer > .detail {
+    display: flex;
+    font-size: .8em;
+    align-items: center;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .session > .footer > .detail:first-of-type {
+    flex: 2;
+  }
+
+  .session > .footer > .detail:last-of-type {
+    flex: 1;
+    justify-content: flex-end;
+  }
+
+
+  .session > .footer > .detail > .material-icons { font-size: 20px; }
+  .session .content {
+    font-family: "open-sans",arial,sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    padding: 10px;
+    box-sizing: border-box;
+    position: relative;
+    height: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ext-pronun-mark { color: #690; }
+}
 
 $ let session = input.session;
-$ let dateStart = new Date(session.startTime);
-$ let dateEnd = new Date(session.createdAt);
-$ let dateEdit = new Date(session.updatedAt);
 $ let faviconBase = 'https://www.google.com/s2/favicons?domain=';
-<div.session>
-  <header>
-    <img src=faviconBase + session.pageURL/>
-    <h2>${session.title}</h2>
-    <>
-  </header>
 
-  ${session.pageURL}
-  ${session.startTime}
-  ${session.createdAt}
-  ${session.updatedAt}
+<div.session>
   <div.content key='content'></div>
+  <header on-click('sessionClickHandler')>
+    <img src=faviconBase + session.pageURL/>
+    <h2>${session.title}</h2> <span>${state.timeAgo}</span>
+  </header>
+  <div.footer>
+    <div.detail>
+      <i.material-icons>link</i>
+      <a href=session.pageURL>${session.pageURL}</a>
+    </div>
+    <div.detail>
+      <i.material-icons>access_time</i>
+      <span>${state.duration}</span>
+    </div>
+  </div>
 </div>

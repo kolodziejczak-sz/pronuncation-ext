@@ -2,7 +2,7 @@ class {
 
   onCreate(input) {
     this.state = {
-      currentView: 0,
+      currentView: Number(input.view),
       views: [ 
         { key: 'home', icon: 'dashboard' },
         { key: 'sessions', icon: 'weekend' },

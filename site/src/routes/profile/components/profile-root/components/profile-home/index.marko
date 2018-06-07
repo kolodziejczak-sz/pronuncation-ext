@@ -2,20 +2,53 @@ class {
   goToLicense() {
     this.emit('selected', 2);
   }
+
+  goToSessions() {
+    this.emit('selected', 1);
+  }
 }
 style {
   .account {}
-  .license {}
+
+  .grid {
+    margin-top: 20px;
+    display: flex;
+  }
+
+  .grid .session, .grid .license {
+    box-sizing: border-box;
+  }
+
+  .grid .column {
+    display: flex;
+    width: 50%;
+    flex-direction: column;
+  }
+
+  .grid .column:first-child {
+    margin-left: 0;
+  }
+
+  .grid .column:last-child {
+    margin-right: 0;
+  }
 
 }
 $ let user = input.user;
-$ let sessions = input.sessions.slice(0, 4);
+$ let sessions = input.sessions.slice(0, 2);
 $ let license = input.licenses[0];
 <account-intro user=user/>
 <div.grid>
-  <for(session in sessions)>
-    <session session=session/>
-  </for>
-  <license-intro license=license
-                on-triggered('goToLicense')/>
+  <div.column>
+    <session if(sessions[0])
+             session=sessions[0]
+             on-triggered('goToSessions')/>
+    <session if(sessions[1]) 
+             session=sessions[1]
+             on-triggered('goToSessions')/>
+  </div>
+  <div.column>
+    <license-intro license=license
+                   on-triggered('goToLicense')/>
+  </div>
 </div>
