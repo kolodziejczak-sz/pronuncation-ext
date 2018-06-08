@@ -44,21 +44,22 @@ exports.edit = function(req, res) {
     email: form.email
   }},{new: true}, (err, updatedUser) => {
     if(err) {
-      editForm(req, res, form, 'Name and email have to be unique.');
+      editForm(res, form, 'Name and email have to be unique.');
+      return;
     }
     req.user = res.locals.user = updatedUser;
     if(form.password3) {
       updatedUser.setPassword(form.password3);
       updatedUser.save((err) => {
         if(err) {
-          editForm(req, res, form, 'Name and email have to be unique.');
+          editForm(res, form, 'Name and email have to be unique.');
           return;
         }
-        editForm(req, res, null, 'Profile has been edited.');
+        editForm(res, null, 'Profile has been edited.');
         return;
       });
     }
-    editForm(req, res, null, 'Profile has been edited.');
+    editForm(res, null, 'Profile has been edited.');
   });
 }
 
@@ -71,6 +72,8 @@ function tryAgainForm(form, msg, res) {
   template.render(viewBag, res);
 }
 
-function editForm(req, res, form, msg) {
-  profile.editAccount(req, res, form, msg);
+function editForm(res, form, msg) {
+  res.locals.form = form;
+  res.locals.message = msg;
+  res.redirect('/profile/3');
 }

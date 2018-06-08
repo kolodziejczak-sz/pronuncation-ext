@@ -6,6 +6,9 @@ const moment = require('moment');
 
 exports.site = function(req, res) {
   const user = (res.locals.user || req.user);
+  const msg = (res.locals.msg || null);
+  const form = (res.locals.form || null);
+  exports.clearLocals(res);
   if(!user) {
     res.redirect('/');
     return;
@@ -19,7 +22,9 @@ exports.site = function(req, res) {
     const viewBag = { 
       link: '/profile',
       view: req.params.viewId || 0,
-      user, licenses, sessions 
+      user, licenses, sessions,
+      msg,
+      form
     };
     template.render(viewBag, res);
   })
@@ -29,31 +34,9 @@ exports.site = function(req, res) {
   })
 };
 
-exports.editAccount = function(req, res, form, msg) {
-  const user = (res.locals.user || req.user);
-  if(!user) {
-    res.redirect('/');
-    return;
-  }
-
-  Promise
-  .all([user.getLicenses(), user.getSessions()])
-  .then((values) => {
-    const licenses = values[0] || [];
-    const sessions = (values[1] || []);
-    const viewBag = { 
-      link: '/profile',
-      view: 3,
-      form: form,
-      msg: msg,
-      user, licenses, sessions 
-    };
-    template.render(viewBag, res);
-  })
-  .catch((err) => {
-    console.log(err);
-    res.redirect('/');
-  })
+exports.clearLocals = function(res) {
+  res.locals.msg = null;
+  res.locals.form = null;
 };
 
 exports.deleteSession = function(req, res) {
