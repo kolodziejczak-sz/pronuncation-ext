@@ -1,2 +1,163 @@
-class {}
-style {}
+class {
+  onCreate() {
+    this.state = {
+      errorMsg: '',
+      newPassword: false
+    }
+
+    this.messages = {
+      name: 'Name should contain atleast 5 characters',
+      email: 'Incorrect email',
+      password: 'Passwords should be equal'
+    }
+  }
+
+  toggleNewPassword() {
+    this.state.newPassword = !this.state.newPassword;
+  }
+
+  handleSubmit(event) {
+    this.state.errorMsg = ''
+    const formValue = this.getFormValue();
+    const invalidControlKey = ['name','email'].find(key => !formValue[key].valid);
+    if(invalidControlKey) {
+      this.state.errorMsg = this.messages[invalidControlKey];
+      event.preventDefault();    
+      return;      
+    }
+    if(formValue['password1'].value!==formValue['password2'].value) {
+      this.state.errorMsg = this.messages['password'];
+      event.preventDefault();
+      return;
+    }
+
+    if(this.state.newPassword) {
+      if(formValue['password3'].value!==formValue['password4'].value) {
+        this.state.errorMsg = this.messages['password'];
+        event.preventDefault();
+        return;
+      }
+    }
+  }
+
+  getFormValue() {
+    const controls = [...document.querySelectorAll('.form-control > input')];
+    return controls.reduce((acc, controlEl) => {
+      acc[controlEl.getAttribute('name')] = {
+        value: controlEl.value,
+        valid: controlEl.checkValidity()
+      }
+      return acc;
+    }, {})
+  }
+}
+
+style {
+  .account-tab h2 {
+    margin: 5px 0 15px 0;
+    font-size: 24px;
+  }
+  .account-tab form, .account-tab form  * { 
+    color: #333;
+    font-family: "open-sans",arial,sans-serif;
+  }
+  .account-tab form, .account-tab fieldset {
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin: 10px 0;
+  }
+  .account-tab .form-control:not(:first-of-type) { margin-top: 5px;}
+  .account-tab .form-control > label,
+  .account-tab .form-control > input {  
+    display: block; 
+    width: 50%;
+  }
+
+  .account-tab .small { font-size: 12px; }
+
+  .account-tab p { margin: 5px 0; }
+
+  .account-tab .submit {
+    background: transparent;
+    border: 1px solid #cbd6e2;
+    margin: 10px;
+    cursor: pointer;
+  }
+  .account-tab .error {
+    display: inline-block;
+    color: #e60a22;
+    font-size: 12px;
+  }
+
+  .account-tab form {
+    flex: 1;
+  }
+
+  .account-tab {
+    display: flex;
+    flex-direction: row-reverse;
+  }
+
+  .account-tab .license {
+    max-width: 400px;
+    padding: 20px
+  }
+
+  .account-tab .newpass {
+    display: block;
+    padding: 0 10px;
+  }
+}
+$ let license = input.license
+$ let user = input.user
+$ let form = input.form || {}
+$ let msg = input.msg
+<div.account-tab>
+  <license-intro license=license
+                on-triggered('goToLicense')/>
+  <form action="/editaccount" method="post" on-submit('handleSubmit')>
+    <h2>Edit your account</h2>
+    <fieldset>
+      <legend.small>Username should contain be at least 5 characters</legend>
+      <div.form-control>
+        <label for="username">Name</label>
+        <input id="name" name="name" type="text"
+              value=(form.name || user.name) pattern=".{5,}" required/>
+      </div>
+      <div.form-control>
+        <label for="email">E-mail</label>
+        <input id="email" name="email" type="email"
+              pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,63}$"
+              value=(form.email || user.email) required/>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend.small>Passwords should be equal</legend>
+      <div.form-control>
+        <label for="password1">Password</label>
+        <input id="password1" name="password1" type="password" required/>
+      </div>
+      <div.form-control>
+        <label for="password2">Re-type password</label>
+        <input id="password2" name="password2" type="password" required/>
+      </div>
+    </fieldset>
+    <fieldset if(state.newPassword)>
+      <legend.small>Set new password</legend>
+      <div.form-control>
+        <label for="password3">Password</label>
+        <input id="password3" name="password3" type="password" required/>
+      </div>
+      <div.form-control>
+        <label for="password4">Re-type password</label>
+        <input id="password4" name="password4" type="password" required/>
+      </div>
+    </fieldset>
+    <label.newpass for="newpass">
+      <input id="newpass" name="newpass" type="checkbox" checked=state.newPassword on-click('toggleNewPassword')>
+      <span>Change password</span>
+    </label>
+    <button.submit type="submit">Edit</button>
+    <div.error if(state.errorMsg || msg)>${state.errorMsg || msg}</div>
+  </form>
+</div>

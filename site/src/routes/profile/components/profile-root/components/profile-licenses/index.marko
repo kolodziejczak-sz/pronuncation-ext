@@ -7,7 +7,7 @@ style {
 $ let licenses = input.licenses;
 $ let lastOne = licenses[0];
 $ let now = new Date().getTime();
-$ let isExpired = (now - lastOne.expirationTime) > 0;
+$ let isExpired = lastOne ? (now - lastOne.expirationTime) > 0 : true;
 
 <license-intro license=isExpired?null:lastOne/>
 <licenses licenses=licenses/>

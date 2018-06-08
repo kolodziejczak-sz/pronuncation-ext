@@ -75,8 +75,8 @@ $ let views = state.views;
     <profile-home if(state.currentView===0)
                   key='home'
                   user=input.user
-                  sessions=input.sessions
-                  licenses=input.licenses
+                  sessions=input.sessions.slice(0, 2)
+                  license=input.licenses[0]
                   on-selected('changeViewHandler')/>
     <profile-sessions if(state.currentView===1)
                       key='sessions'
@@ -88,6 +88,9 @@ $ let views = state.views;
                       licenses=input.licenses/>
     <profile-account if(state.currentView===3)
                      key='account'
+                     msg=input.msg
+                     form=input.form
+                     license=input.licenses[0]
                      user=input.user/>
   </div>
 </main>

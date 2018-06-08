@@ -12,8 +12,10 @@
   <body>
     <app-nav user=data.user link=data.link/>
     <profile-root view=data.view
+                  msg=data.msg
+                  form=data.form
                   user=data.user 
-                  sessions=data.sessions 
+                  sessions=data.sessions
                   licenses=data.licenses/>
     <lasso-body/>
     <browser-refresh enabled="true"/>

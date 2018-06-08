@@ -53,12 +53,16 @@ app.get('/', home);
 app.get('/pricing', pricing);
 app.get('/profile', profile.site);
 app.get('/profile/:viewId', profile.site);
+
 app.post('/session', profile.deleteSession);
 app.get('/register', register.form);
+
+app.post('/editaccount', register.edit);
 app.post('/register', register.submit);
 app.get('/login', login.form);
 app.post('/login', login.submit);
 app.get('/logout', login.logout);
+
 app.post('/api/login', login.apiLogin);
 app.post('/api/session', profile.session);
 

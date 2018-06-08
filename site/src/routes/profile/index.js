@@ -21,7 +21,33 @@ exports.site = function(req, res) {
       view: req.params.viewId || 0,
       user, licenses, sessions 
     };
-    console.log("VIEW", viewBag.view)
+    template.render(viewBag, res);
+  })
+  .catch((err) => {
+    console.log(err);
+    res.redirect('/');
+  })
+};
+
+exports.editAccount = function(req, res, form, msg) {
+  const user = (res.locals.user || req.user);
+  if(!user) {
+    res.redirect('/');
+    return;
+  }
+
+  Promise
+  .all([user.getLicenses(), user.getSessions()])
+  .then((values) => {
+    const licenses = values[0] || [];
+    const sessions = (values[1] || []);
+    const viewBag = { 
+      link: '/profile',
+      view: 3,
+      form: form,
+      msg: msg,
+      user, licenses, sessions 
+    };
     template.render(viewBag, res);
   })
   .catch((err) => {

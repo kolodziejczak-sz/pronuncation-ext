@@ -41,5 +41,10 @@ style {
       <td>${createdAt}</td>
       <td>${expTime}</td>
     </tr>
+    <tr if(input.licenses.length===0)>
+      <td>FREE</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
   </tbody>
 </table>

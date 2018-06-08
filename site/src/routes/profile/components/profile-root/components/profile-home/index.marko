@@ -35,16 +35,13 @@ style {
 
 }
 $ let user = input.user;
-$ let sessions = input.sessions.slice(0, 2);
-$ let license = input.licenses[0];
+$ let sessions = input.sessions;
+$ let license = input.license;
 <account-intro user=user/>
 <div.grid>
-  <div.column>
-    <session if(sessions[0])
-             session=sessions[0]
-             on-triggered('goToSessions')/>
-    <session if(sessions[1]) 
-             session=sessions[1]
+  <div.column if(sessions.length > 0)>
+    <session for(session in sessions)
+             session=session
              on-triggered('goToSessions')/>
   </div>
   <div.column>

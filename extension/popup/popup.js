@@ -80,6 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
         user = isSessionExpired ? null : userFromStorage;
       }
       else {
+        user = null;
         alert(strings.messages.login,'danger')
       }
       initLogginState(user);
@@ -140,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function logout(event) {
     event.preventDefault();
     setToStorage(credentialsKey, null);
-    getCurrentTab(initComponents);
+    getCurrentTab((tab) => initComponents(tab));
   }
 
   function triggerAsStop(tab) {
