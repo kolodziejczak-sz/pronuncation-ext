@@ -5,6 +5,8 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
+const paypal = require('paypal-rest-sdk');
+const lasso = require('lasso');
 
 const https = require('https');
 const path = require('path');
@@ -18,7 +20,7 @@ const certOptions = {
 const port = 4200;
 const isProduction = false;
 
-require('lasso').configure({
+lasso.configure({
   plugins: [
       'lasso-marko' // Allow Marko templates to be compiled and transported to the browser
   ],
@@ -28,9 +30,16 @@ require('lasso').configure({
   fingerprintsEnabled: isProduction, // Only add fingerprints to URLs in production
 });
 
+paypal.configure({
+  'mode': 'sandbox', //sandbox or live
+  'client_id': 'Af7OMjur7kCjRAIyCCbgiCzTNZ2mYz0wIZyOXf8EywM7wby8OFkVqCi-koauOc3htI8_CKpMSvwH46Tv',
+  'client_secret': 'EG8kfvQQX1vSCfyvr7OC_vfpJVnw_-U5fddng_LkpJgKSN2ht5eBkZqnNNX_Y6d19dnfLATopS9R-HJ_'
+})
+
 
 const home = require('./src/routes/home');
 const login = require('./src/routes/login');
+const license = require('./src/routes/license');
 const profile = require('./src/routes/profile');
 const pricing = require('./src/routes/pricing');
 const register = require('./src/routes/register');
@@ -56,6 +65,9 @@ app.get('/profile/:viewId', profile.site);
 
 app.post('/session', profile.deleteSession);
 app.get('/register', register.form);
+
+app.get('/license', license.license);
+app.get('/payment', license.payment);
 
 app.post('/editaccount', register.edit);
 app.post('/register', register.submit);

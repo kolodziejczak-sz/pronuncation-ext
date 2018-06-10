@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>License - pronouncation extension</title>
+    <link rel="stylesheet" href="../../../static/reset.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <lasso-head/>
+  </head>
+  <style>
+    .license h2 {
+      margin: 10px 0;
+      font-size: 24px;
+    }
+    .license a {
+      margin: 10px 0;
+      display: inline-block;
+    }
+  </style>
+  <body>
+    <app-nav user=data.user/>
+    <main class="license content">
+     <h2>License transaction status</h2>
+     <if(data.msg)>
+      <h3>${data.msg}</h3>
+     </if>
+     <else>
+        Transaction might fail. Please try again later.
+     </else>
+     <a href="/profile/2">Go back to profile</a>
+    </main>
+    <lasso-body/>
+    <browser-refresh enabled="true"/>
+  </body>
+</html>

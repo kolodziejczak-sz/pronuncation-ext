@@ -10,7 +10,7 @@ exports.site = function(req, res) {
   const form = (res.locals.form || null);
   exports.clearLocals(res);
   if(!user) {
-    res.redirect('/');
+    res.redirect('/login');
     return;
   }
 

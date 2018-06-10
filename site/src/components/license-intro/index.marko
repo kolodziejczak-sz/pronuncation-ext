@@ -38,6 +38,11 @@ style {
     outline: 0;
   }
 
+  .license > button > a {
+    text-decoration: none;
+    color: inherit;
+  }
+
 }
 <div.license>
   $ let license = input.license;
@@ -48,7 +53,10 @@ style {
       In this version you can't save session and browse through saved snippets.
       Support authors of the project and buy premium account whenever you want to full-use potential of extension.
     </p>
-    <button on-click('triggerClickHandler')>GET PREMIUM</button>
+    <button on-click('triggerClickHandler')>
+      <a if(input.link) href=input.link>GET PREMIUM</a>
+      <span if(!input.link)>GET PREMIUM</span>
+    </button>
   </if>
   <else>
     $ let expTime = new Date(license.expirationTime).toDateString();

@@ -1,4 +1,8 @@
-class {}
+class {
+  goToLicense() {
+
+  }
+}
 style {
   .licenses {
     margin-top: 20px;
@@ -9,6 +13,6 @@ $ let lastOne = licenses[0];
 $ let now = new Date().getTime();
 $ let isExpired = lastOne ? (now - lastOne.expirationTime) > 0 : true;
 
-<license-intro license=isExpired?null:lastOne/>
+<license-intro link='/license' license=isExpired?null:lastOne/> 
 <licenses licenses=licenses/>
 

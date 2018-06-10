@@ -12,6 +12,11 @@ LicenseSchema.methods.isExpired = function(){
   return (now - this.expirationTime) > 0;
 };
 
+LicenseSchema.methods.setExpirationTime = function(days) {
+  days = days || LicenseDuration;
+  const now = new Date().getTime();
+  this.expirationTime = now + daysToMs(days);
+}
 
 function daysToMs(days) {
   return days * 24 * 60 * 60 * 1000;

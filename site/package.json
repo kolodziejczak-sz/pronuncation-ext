@@ -21,7 +21,8 @@
     "marko": "^4.9.6",
     "moment": "^2.22.2",
     "mongoose": "^5.0.16",
-    "mongoose-unique-validator": "^2.0.0"
+    "mongoose-unique-validator": "^2.0.0",
+    "paypal-rest-sdk": "^1.8.1"
   },
   "devDependencies": {
     "browser-refresh-taglib": "^1.1.0"

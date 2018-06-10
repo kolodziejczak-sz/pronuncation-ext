@@ -12,6 +12,10 @@ class {
     }
   }
 
+  goToLicenses() {
+    this.emit('selected', 2);
+  }
+
   toggleNewPassword() {
     this.state.newPassword = !this.state.newPassword;
   }
@@ -114,7 +118,7 @@ $ let form = input.form || {}
 $ let msg = input.msg
 <div.account-tab>
   <license-intro license=license
-                on-triggered('goToLicense')/>
+                 on-triggered('goToLicenses')/>
   <form action="/editaccount" method="post" on-submit('handleSubmit')>
     <h2>Edit your account</h2>
     <fieldset>
