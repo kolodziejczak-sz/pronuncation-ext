@@ -313,7 +313,7 @@ function createSelectLangs(voices) {
 function onComboboxLangSelect(voices, event) {
   const selectedVoice = voices.find(voice => voice.voiceURI === event.currentTarget.value);
   synth.voice = selectedVoice;
-  recognition.voice = selectedVoice.lang;
+  recognition.lang = selectedVoice.lang;
 }
 
 function createOption(voice) {
